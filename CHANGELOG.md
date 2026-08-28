@@ -12,6 +12,8 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Added
 
+- Repo-level `README.md` (GitHub-style), `LICENSE` (GNU GPL v3.0), and `NOTICE`
+  with third-party attribution.
 - AI Cliché Highlighter: three new Wikipedia-guide signs (copulative avoidance,
   vague association, canned notability) and extended vocabulary/chatbot-leftover
   detectors (newer-era words; Grok/Gemini/Perplexity markup artifacts) — 41
@@ -26,6 +28,8 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
   modules.
 
 ### Changed
+
+- Relicensed the extension from MIT to GPL-3.0-or-later (`package.json`).
 
 ### Deprecated
 

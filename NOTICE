@@ -1,0 +1,30 @@
+AI Cliché Highlighter
+Copyright (C) 2026 Anant Shrivastava and contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. See the LICENSE file for the full text.
+
+-------------------------------------------------------------------------------
+Third-party attribution
+-------------------------------------------------------------------------------
+
+The detection engine in extension/src/patterns.js is adapted (ported largely
+verbatim) from Simon Willison's "LLM cliché highlighter":
+
+    https://tools.simonwillison.net/llm-cliche-highlighter
+    Source: https://github.com/simonw/tools  (Apache License 2.0)
+
+That upstream code is licensed under the Apache License, Version 2.0. It is
+incorporated here under the terms of that license, which is compatible with the
+GNU GPL v3. Modifications to the ported code (e.g. ES-module exports, hoisting
+two chain regexes to literals, and bounding quantifiers to prevent ReDoS) are
+noted inline in extension/src/patterns.js. A copy of the Apache License 2.0 is
+available at https://www.apache.org/licenses/LICENSE-2.0.
+
+Several detectors in the "Signs of AI writing (Wikipedia)" group are adapted
+from Wikipedia's "Signs of AI writing" guide, which is available under the
+Creative Commons Attribution-ShareAlike license:
+
+    https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing

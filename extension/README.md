@@ -67,3 +67,9 @@ jsdom; `tests/meta.test.js` checks the read-more links. See
 ## Requirements
 
 Chrome 105+ (CSS Custom Highlight API). Runs in the top frame only.
+
+## License
+
+[GPL-3.0-or-later](../LICENSE). The detection engine is adapted from Simon
+Willison's llm-cliché-highlighter (Apache-2.0); see [`../NOTICE`](../NOTICE) for
+attribution.

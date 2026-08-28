@@ -9,6 +9,47 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-08-28 — Project README, GPL-3.0 license, and attribution
+
+**Summary:** Added a GitHub-style repo `README.md`, a `LICENSE` (GNU GPL v3.0),
+and a `NOTICE` file; relicensed the extension from MIT to GPL-3.0-or-later.
+
+**Why:** The project became a standalone git repository and needed a proper
+landing page and an explicit license (user chose GPL-3.0).
+
+**What changed:**
+- `README.md` (new, repo root) — features, install-from-source, usage, how-it-
+  works, development, testing, security, requirements, roadmap, license, credits,
+  with shields.io badges.
+- `LICENSE` (new) — verbatim GNU GPL v3.0 text (fetched from gnu.org).
+- `NOTICE` (new) — attribution: the ported detection engine
+  (`extension/src/patterns.js`) derives from Simon Willison's
+  llm-cliché-highlighter, which is **Apache-2.0** (GPL-3.0-compatible), and the
+  Wikipedia-group detectors from Wikipedia's CC BY-SA guide.
+- `extension/package.json` — `license` MIT → `GPL-3.0-or-later`.
+- `extension/README.md` — added a License section.
+
+**How / commands run:**
+```
+curl -s https://raw.githubusercontent.com/simonw/tools/master/LICENSE   # -> Apache-2.0
+curl -s https://www.gnu.org/licenses/gpl-3.0.txt -o LICENSE             # 674 lines
+aidc-scan   # license-check + vet now in scope (LICENSE + manifest changed) -> clean
+```
+
+**Errors encountered & resolution:** None. Verified Apache-2.0 → GPL-3.0
+compatibility for the ported code (permissive-into-copyleft is allowed with
+attribution retained); the original credit and the noted modifications already
+live in the `patterns.js` header.
+
+**Verification:** `aidc-scan` clean including `license-check` and `vet` (both now
+triggered by the LICENSE/manifest change). `LICENSE` is the full GPL-3.0 text
+(35,149 bytes, ends with the "How to Apply" appendix).
+
+**Notes / follow-ups:** License field uses the SPDX `GPL-3.0-or-later`; switch to
+`GPL-3.0-only` if you want to pin to exactly v3. Keeping `patterns.js` under its
+original Apache-2.0 attribution satisfies Apache §4 (retain notice, state
+changes).
+
 ## 2026-08-28 — Security review + ReDoS fix
 
 **Summary:** Thorough security review of the extension (DOM/XSS/exfiltration

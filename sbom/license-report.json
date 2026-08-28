@@ -1,5 +1,5 @@
 {
-  "project_license": "",
+  "project_license": "GPL-3.0-only",
   "mode": "fail",
   "sbom_source": "./sbom/code.spdx.json",
   "conflicts": [],
