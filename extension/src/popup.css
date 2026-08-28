@@ -1,0 +1,74 @@
+* { box-sizing: border-box; }
+
+body {
+  width: 340px;
+  margin: 0;
+  padding: 14px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: #1d1b17;
+  background: #faf9f7;
+}
+
+h1 { margin: 0 0 4px; font-size: 18px; letter-spacing: -0.01em; }
+h1 mark { background: #fcd34d; border-radius: 3px; padding: 0 4px; }
+
+.status { margin: 0 0 12px; color: #6e6a62; font-size: 12px; min-height: 15px; }
+
+.actions { display: flex; gap: 8px; margin-bottom: 12px; }
+
+button {
+  padding: 7px 12px;
+  color: #1d1b17;
+  background: #fff;
+  border: 1px solid #d9d4c9;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+button:hover { background: #f3f0e9; }
+button.secondary { color: #6e6a62; }
+#scan { font-weight: bold; background: #fcd34d; border-color: #eab308; }
+#scan:hover { background: #fbbf24; }
+
+.site-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 9px 10px;
+  background: #fff;
+  border: 1px solid #e7e3db;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.site-toggle strong { word-break: break-all; }
+
+.patterns { border-top: 1px solid #e7e3db; padding-top: 8px; }
+.patterns summary { cursor: pointer; user-select: none; font-weight: bold; }
+.muted { color: #a29b8d; font-weight: normal; font-size: 12px; }
+
+.pattern-actions { display: flex; gap: 12px; margin: 8px 0 4px; }
+button.link {
+  padding: 0; border: none; background: none; color: #92400e;
+  font-size: 12px; text-decoration: underline; cursor: pointer;
+}
+button.link:hover { background: none; color: #b45309; }
+
+.pattern-group {
+  margin: 12px 0 4px; color: #a29b8d; font-size: 11px; font-weight: bold;
+  letter-spacing: 0.07em; text-transform: uppercase;
+}
+.pattern-row { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; }
+.pattern-row label { cursor: pointer; }
+.pattern-row .count { margin-left: auto; color: #92400e; font-size: 12px; }
+
+footer {
+  margin-top: 12px; padding-top: 10px; border-top: 1px solid #e7e3db;
+  color: #6e6a62; font-size: 12px;
+}
+.swatch { display: inline-block; width: 11px; height: 11px; border-radius: 3px; vertical-align: -1px; margin: 0 3px 0 8px; }
+.swatch:first-child { margin-left: 0; }
+.swatch.tic { background: #fcd34d; }
+.swatch.wiki { background: #93c5fd; }

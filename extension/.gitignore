@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output (bundled by build.mjs)
+dist/
+build/
+out/
+
+# Test / coverage artifacts
+coverage/
+.nyc_output/
+.vitest/
+
+# Packaged extension artifacts
+*.zip
+*.crx
+*.xpi
+*.pem          # extension signing key — NEVER commit
+web-ext-artifacts/
+.web-extension-id
+
+# Logs & debug
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Editor / OS cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.tmp

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+  <title>AI Cliché Highlighter</title>
+</head>
+<body>
+  <header>
+    <h1>AI Cliché <mark>Highlighter</mark></h1>
+    <p id="status" class="status"></p>
+  </header>
+
+  <div class="actions">
+    <button id="scan" type="button">Scan this page</button>
+    <button id="clear" type="button" class="secondary">Clear</button>
+  </div>
+
+  <label class="site-toggle">
+    <input type="checkbox" id="allow-site">
+    <span>Auto-scan <strong id="origin">this site</strong> on load</span>
+  </label>
+
+  <details class="patterns">
+    <summary>Patterns <span id="pattern-meta" class="muted"></span></summary>
+    <div class="pattern-actions">
+      <button id="all-on" type="button" class="link">All on</button>
+      <button id="all-off" type="button" class="link">All off</button>
+    </div>
+    <div id="pattern-list"></div>
+  </details>
+
+  <footer>
+    <span class="swatch tic"></span> Rhetorical tics
+    <span class="swatch wiki"></span> Signs of AI writing
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

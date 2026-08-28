@@ -1,0 +1,19 @@
+{
+  "name": "ai-cliche-highlighter",
+  "version": "0.1.0",
+  "description": "Chrome extension that highlights LLM writing clichés on any web page, adapted from Simon Willison's llm-cliche-highlighter and Wikipedia's Signs of AI writing guide.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^25.0.0",
+    "vitest": "^2.1.0",
+    "@vitest/coverage-v8": "^2.1.0"
+  }
+}
