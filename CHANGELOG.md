@@ -72,6 +72,10 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Security
 
+- Bumped dev dependencies to latest — esbuild 0.25→0.28.2, vitest 2.1→4.1.11,
+  @vitest/coverage-v8 2.1→4.1.11, jsdom 25→30.0.1. Clears the dev-only
+  esbuild/vite advisories (the old vulnerable vite chain is gone; `npm audit` now
+  reports 0 vulnerabilities). 287 tests still pass; build unaffected.
 - AI Tells: fixed a ReDoS/denial-of-service where the
   question-chain, anaphora, and "no/did-not" chain detectors were O(n²) on
   terminator-free page text and could freeze the tab; quantifiers are now bounded
