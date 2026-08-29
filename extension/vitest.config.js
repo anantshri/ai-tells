@@ -9,7 +9,7 @@ export default defineConfig({
       // (content.js / popup.js / background.js) depends on CSS.highlights,
       // caret hit-testing, and the chrome.* APIs, none of which exist under
       // jsdom; those are verified manually per docs/VERIFY.md.
-      include: ['src/patterns.js', 'src/detect.js', 'src/meta.js'],
+      include: ['src/patterns.js', 'src/detect.js', 'src/meta.js', 'src/badge.js'],
       reporter: ['text', 'text-summary'],
     },
   },

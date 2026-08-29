@@ -9,6 +9,57 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-08-29 — Toolbar match-count badge
+
+**Summary:** After a page scan, the extension's toolbar action icon shows a
+per-tab badge with the number of matches found. The badge clears when
+highlights are cleared and when the tab navigates.
+
+**Why:** The match count was only visible as transient text in the popup. A
+persistent badge on the toolbar icon surfaces "this page looks AI-ish, and by
+how much" at a glance — including on allowlisted sites that auto-scan without
+the user ever opening the popup.
+
+**What changed:**
+- `src/badge.js` (new): pure `badgeText(count)` — returns `''` for zero /
+  negative / non-finite input (hides the badge), floors fractional counts, and
+  caps at `"999+"` so the text fits the toolbar badge. Isolated here so it is
+  unit-testable without the `chrome.*` APIs.
+- `src/background.js`: sets global badge colours (red bg `#DC2626`, white text
+  where `setBadgeTextColor` exists); listens for `{type:'matchCount', count}`
+  messages from the content script and renders them per-tab via
+  `chrome.action.setBadgeText({tabId, text})` keyed on `sender.tab.id`; and
+  clears a tab's badge on `chrome.tabs.onUpdated` `status === 'loading'` so a
+  stale count can't linger across a navigation. Message sender is validated
+  (`sender.id === chrome.runtime.id` and `sender.tab` present).
+- `src/content.js`: `reportCount(count)` sends the count to the worker (wrapped
+  in try/catch + `lastError` swallow for a torn-down extension context). Called
+  with the match count at the end of `runScan()` and with `0` in `deactivate()`.
+- `tests/badge.test.js` (new): covers `badgeText` — positive numbers, zero,
+  negative/NaN/Infinity/string/undefined/null, numeric strings, fractional
+  flooring, and the 999 cap.
+- `vitest.config.js`: added `src/badge.js` to the coverage `include` list.
+- Docs: `docs/VERIFY.md` new manual check for the badge (per-tab count, clear,
+  navigation reset); `CHANGELOG.md` Unreleased/Added bullet.
+
+**How / commands run:**
+```
+npm test -- --coverage   # 293 passed; badge.js 100% (statements 281/314 -> 286/319)
+npm run build            # dist/{chrome,firefox,safari} rebuilt
+aidc-scan                # security gate on changed files
+```
+
+**Verification:** Unit tests green with `badge.js` fully covered. The
+chrome-glue layer (message passing, `chrome.action`, `tabs.onUpdated`) is
+verified manually per `docs/VERIFY.md` step 2, matching the existing convention
+that jsdom can't exercise the browser APIs.
+
+**Notes:** No new manifest permissions — the action API is implicit in MV3 and
+`tabs.onUpdated` needs only `tabId`/`status` (no host/`tabs` permission). Badge
+text is per-tab, so each tab reflects its own last scan.
+
+---
+
 ## 2026-08-29 — Renamed to "AI Tells" + new icon
 
 **Summary:** Rebranded from "AI Cliché Highlighter" to **AI Tells** (repo/package

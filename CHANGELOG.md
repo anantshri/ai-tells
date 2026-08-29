@@ -12,6 +12,10 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Added
 
+- AI Tells: the toolbar icon now shows a badge with the number of matches
+  found on the current tab after a scan (auto-scan on allowlisted sites, or
+  "Scan this page" in the popup). The badge clears when highlights are cleared
+  or the tab navigates.
 - Cross-browser builds: `npm run build` now emits `dist/chrome` (Chrome/Edge/
   Opera/Brave), `dist/firefox` (event-page background + gecko add-on id), and
   `dist/safari` (Xcode-convertible). Same code everywhere — only the manifest

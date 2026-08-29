@@ -235,6 +235,19 @@ function onKeyDown(event) {
   if (event.key === 'Escape') hideTip();
 }
 
+// ---- toolbar badge -----------------------------------------------------
+
+// Report the current match count to the service worker, which renders it as a
+// badge on the toolbar icon. Wrapped because the extension context can be torn
+// down (e.g. on reload) mid-scan, which makes sendMessage throw.
+function reportCount(count) {
+  try {
+    chrome.runtime.sendMessage({ type: 'matchCount', count }, () => void chrome.runtime.lastError);
+  } catch (_) {
+    /* extension context invalidated — nothing to report to */
+  }
+}
+
 // ---- highlight painting -----------------------------------------------
 
 function paint(hits) {
@@ -267,6 +280,7 @@ function runScan() {
     // Leaving the page/window entirely fires no further mousemove, so hide here.
     document.documentElement.addEventListener('mouseleave', scheduleHide);
   }
+  reportCount(res.matches.length);
   return res.matches.length;
 }
 
@@ -283,6 +297,7 @@ function deactivate() {
   }
   state.matches = [];
   state.nodeStart = new Map();
+  reportCount(0);
 }
 
 function scheduleRescan() {
