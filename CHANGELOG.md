@@ -10,6 +10,13 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ## [Unreleased]
 
+### Changed
+
+- AI Tells: the negative-parallelism detector (`not-just`, now surfaced as
+  "Negative parallelisms") also catches the trailing "X is A, not B" antithesis
+  — the "…is a hypothesis, not a control" closing kicker LLMs favour. Previously
+  only the "not just X, but Y" and "it's not X — it's Y" orderings were caught.
+
 ### Added
 
 - AI Tells: the toolbar icon now shows a badge with the number of matches

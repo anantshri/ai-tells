@@ -416,9 +416,9 @@ const patterns = [
   {
     id: 'not-just',
     group: WIKI_GROUP,
-    name: '\u201cNot just X, but Y\u201d',
-    description: 'Negative parallelisms: \u201cnot just X, but (also) Y\u201d, \u201cnot only \u2026 but \u2026\u201d, and the \u201cit\u2019s not X \u2014 it\u2019s Y\u201d contrast.',
-    find: makeRegexFinder(/\bnot\s+(?:just|only|merely|simply)\s+[^.!?\n;]*?\bbut(?:\s+also)?\b|\b(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\s+not\s+[^.!?\n,;\u2014\u2013]{1,60}[,;\u2014\u2013]\s*(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\b/gi)
+    name: 'Negative parallelisms',
+    description: 'Negative parallelisms: \u201cnot just X, but (also) Y\u201d, \u201cnot only \u2026 but \u2026\u201d, the \u201cit\u2019s not X \u2014 it\u2019s Y\u201d contrast, and the trailing \u201cX is A, not B\u201d antithesis (\u201ca hypothesis, not a control\u201d) LLMs love as a closing kicker.',
+    find: makeRegexFinder(/\bnot\s+(?:just|only|merely|simply)\s+[^.!?\n;]*?\bbut(?:\s+also)?\b|\b(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\s+not\s+[^.!?\n,;\u2014\u2013]{1,60}[,;\u2014\u2013]\s*(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\b|\b(?:is|are|was|were|be|been|being|['\u2019]s|remains?|stays?|becomes?|became)\s+[^.!?\n,;:\u2014\u2013]{1,50}?,\s+not\s+(?:a|an|the)\s+[^.!?\n]{1,60}?(?=[.!?]|$)/gi)
   },
   {
     id: 'note-that',

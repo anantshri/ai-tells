@@ -9,6 +9,56 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-08-29 — Negative parallelism: catch the trailing "X, not Y" antithesis
+
+**Summary:** Extended the `not-just` detector to catch the trailing antithesis
+"X is A, not B" (e.g. "…is a hypothesis, not a control"), and renamed its
+display label from "Not just X, but Y" to "Negative parallelisms" to reflect the
+now-broader family. `id`, group, and Wikipedia anchor are unchanged.
+
+**Why:** A user-supplied, near-certainly-AI paragraph tripped *zero* of the 53
+detectors. Running the engine over it showed the strongest tell — the aphoristic
+closing kicker "A rule that has not survived a bypass attempt is a hypothesis,
+not a control." — was a negative parallelism our detector already owned but only
+in the restatement-second ordering ("it's not X, it's Y"). The trailing
+"…, not B" ordering slipped through on a word-order technicality. This is a
+deliberate push to extend prose/phrase detection before building the planned
+document-level statistical scorer (`docs/FUTURE_WORK.md`).
+
+**What changed:**
+- `src/patterns.js`: added a third alternation to the `not-just` find regex:
+  `\b(?:is|are|was|were|be|been|being|['’]s|remains?|stays?|becomes?|became)\s+[^.!?\n,;:—–]{1,50}?,\s+not\s+(?:a|an|the)\s+[^.!?\n]{1,60}?(?=[.!?]|$)`.
+  Precision guards, chosen from false-positive probing: requires a copula, a
+  comma, and an **article** after "not" (so "here, not there" / "not great"
+  don't fire), and anchors to sentence end via a zero-width lookahead (kept out
+  of the highlight span). Name → "Negative parallelisms"; description expanded.
+- `tests/cases.js`: 4 new true-positive cases (the paragraph's line, "marathon
+  not a sprint", "feature not a bug", "a practice not a title") and 4
+  false-positive guards (no-article, plain negation, no-copula imperative,
+  mid-sentence "not great").
+
+**How / commands run:**
+```
+node /tmp/probe2.mjs      # regex TP/FP probing before editing (5/5 TP, 7/7 FP clean)
+npm test                  # 301 passed (was 293); EXAMPLE-trips-once invariant still holds
+npm run build             # dist/{chrome,firefox,safari}
+aidc-scan                 # clean
+```
+
+**Verification:** Re-ran the engine over the source paragraph: now 1 match
+("is a hypothesis, not a control") where it previously found none. The
+"example text trips every reference pattern exactly once" invariant test passed,
+confirming the new arm doesn't double-fire on the reference EXAMPLE.
+
+**Notes:** Deliberately conservative — the article requirement trades some
+recall (misses "is red, not blue") for precision, since the real signal is the
+*aphoristic* quality, which regex can't fully isolate from ordinary contrast.
+Structural tells in the same paragraph (fake-precise "trivial ten percent",
+uniform declarative cadence, "and so does an AI" symmetry) remain out of reach
+for phrase matching and are the case for the statistical layer.
+
+---
+
 ## 2026-08-29 — Toolbar match-count badge
 
 **Summary:** After a page scan, the extension's toolbar action icon shows a

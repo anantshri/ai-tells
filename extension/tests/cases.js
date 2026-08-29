@@ -141,6 +141,16 @@ export const patternCases = [
   ['not-just', 'It’s not a bug — it’s a feature.', 1],
   ['not-just', 'He did not buy it.', 0],
   ['not-just', 'She was not sure about the plan.', 0],
+  // Trailing "X is A, not B" antithesis — the closing-kicker form.
+  ['not-just', 'A rule that has not survived a bypass attempt is a hypothesis, not a control.', 1],
+  ['not-just', 'This is a marathon, not a sprint.', 1],
+  ['not-just', "It's a feature, not a bug.", 1],
+  ['not-just', 'Leadership is a practice, not a title.', 1],
+  // Guards: needs a copula, a comma, and an article after "not".
+  ['not-just', 'It is here, not there.', 0],
+  ['not-just', 'This is not the end.', 0],
+  ['not-just', 'Turn left, not right.', 0],
+  ['not-just', 'I said it is fine, not great, but okay.', 0],
   ['note-that', 'It is important to note that timing matters.', 1],
   ['note-that', 'It’s worth noting the fees are separate.', 1],
   ['note-that', 'It should be noted that this changed in 2020.', 1],
