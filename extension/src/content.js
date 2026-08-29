@@ -10,10 +10,10 @@ import { scan, bufferOffsetOf, matchAtBufferOffset } from './detect.js';
 import { patternsById } from './patterns.js';
 import { metaFor, isWikiPattern } from './meta.js';
 
-const HL_TIC = 'aicliche-tic';
-const HL_WIKI = 'aicliche-wiki';
-const STYLE_ID = 'aicliche-style';
-const TIP_ID = 'aicliche-tooltip';
+const HL_TIC = 'aitells-tic';
+const HL_WIKI = 'aitells-wiki';
+const STYLE_ID = 'aitells-style';
+const TIP_ID = 'aitells-tooltip';
 
 // Only run in the top frame.
 const IS_TOP = window.top === window.self;

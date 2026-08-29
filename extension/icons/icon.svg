@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="AI Tells">
+  <!-- rounded highlighter-yellow background -->
+  <rect x="0" y="0" width="128" height="128" rx="28" fill="#FCD34D"/>
+  <!-- magnifying-glass lens fill -->
+  <circle cx="56.3" cy="53.8" r="38.4" fill="#FFFFFF"/>
+  <!-- highlighter swipe under the letters -->
+  <rect x="33.3" y="56.3" width="41" height="14" rx="4" fill="#FCD34D"/>
+  <!-- "AI" -->
+  <g fill="none" stroke="#1D1B17" stroke-width="6.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M38.4 70.4 L46.1 38.4 L53.8 70.4 M41.6 57.6 L50.6 57.6"/>
+    <path d="M66.6 38.4 L66.6 70.4 M62.1 38.4 L71 38.4 M62.1 70.4 L71 70.4"/>
+  </g>
+  <!-- handle -->
+  <line x1="83.5" y1="80.9" x2="110" y2="107.5" stroke="#1D1B17" stroke-width="14.8" stroke-linecap="round"/>
+  <!-- lens ring -->
+  <circle cx="56.3" cy="53.8" r="33.6" fill="none" stroke="#1D1B17" stroke-width="9.6"/>
+</svg>

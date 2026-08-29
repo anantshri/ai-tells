@@ -1,8 +1,10 @@
 <div align="center">
 
-# 🖍️ AI Cliché Highlighter
+<img src="extension/icons/icon128.png" width="96" height="96" alt="AI Tells icon">
 
-**A Chrome extension that highlights LLM writing clichés on any web page — and tells you which "tell" it caught.**
+# AI Tells
+
+**A browser extension that helps you identify signs of probable AI usage — it highlights LLM writing tells on any web page and tells you which one it caught.**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4.svg?logo=googlechrome&logoColor=white)](./extension/manifest.json)
@@ -20,7 +22,7 @@ LLM writing tells, and on hover shows **which signal** it matched plus a link to
 
 It started as **Simon Willison's
 [llm-cliché-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter)**
-— a paste-in-a-textarea tool — whose detection engine we ported into a Chrome
+— a paste-in-a-textarea tool — whose detection engine we ported into a browser
 extension so it works on any live page. From there we grew the signal set well
 beyond the original: tells from Wikipedia's
 [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
@@ -50,20 +52,26 @@ guide, word lists validated by post-ChatGPT frequency studies, and a batch of
 
 ## Install (from source)
 
-Chrome / Edge / Brave (any Chromium 105+):
+Works on **Chrome, Edge, Opera, Brave, Firefox, and Safari**. Build once:
 
 ```bash
 git clone <your-repo-url>
 cd <repo>/extension
 npm install
-npm run build          # bundles src/ -> dist/
+npm run build          # emits dist/chrome, dist/firefox, dist/safari
 ```
 
-Then load it:
+Then load the package for your browser:
 
-1. Open `chrome://extensions`
-2. Enable **Developer mode** (top-right)
-3. Click **Load unpacked** and select the `extension/dist/` folder
+- **Chrome / Edge / Opera / Brave** — `chrome://extensions` → **Developer mode**
+  → **Load unpacked** → `extension/dist/chrome`
+- **Firefox** — `about:debugging#/runtime/this-firefox` → **Load Temporary
+  Add-on…** → `extension/dist/firefox/manifest.json`
+- **Safari** — needs macOS + Xcode:
+  `xcrun safari-web-extension-converter extension/dist/safari`
+
+Full per-browser instructions, minimum versions, and caveats are in
+[`extension/docs/BROWSERS.md`](./extension/docs/BROWSERS.md).
 
 ## Usage
 
@@ -137,8 +145,10 @@ sensitive) rather than a public PoC.
 
 ## Requirements
 
-Chromium-based browser, version **105+** (for the CSS Custom Highlight API and
-caret hit-testing). Runs in the top frame only.
+A browser with the CSS Custom Highlight API: **Chrome/Edge 105+, Opera 91+,
+Firefox 140+, Safari 17.2+**. Below these the extension loads but does nothing
+(it feature-detects and no-ops). Runs in the top frame only. See
+[`extension/docs/BROWSERS.md`](./extension/docs/BROWSERS.md) for the full matrix.
 
 ## Roadmap
 
@@ -150,7 +160,15 @@ caret hit-testing). Runs in the top frame only.
 - [ ] Replace placeholder icons with a real mark
 - [ ] Dynamic per-allowlisted-origin content-script registration (tighter
       permissions than the current `<all_urls>` declaration)
-- [ ] Optional Firefox (`browser.*`) build
+- [x] Cross-browser builds — Chrome/Edge/Opera/Brave, Firefox, and Safari
+
+## 🤖 AI-Assisted Development
+
+This project was developed with the assistance of AI tools, most notably Cursor
+IDE, Claude Code, and Qwen3-Coder. These tools helped accelerate development and
+improve velocity. All AI-generated code has been carefully reviewed and validated
+through human inspection to ensure it aligns with the project's intended
+functionality and quality standards.
 
 ## License
 

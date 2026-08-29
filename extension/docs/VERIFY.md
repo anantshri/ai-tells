@@ -12,8 +12,9 @@ npm install
 npm run build
 ```
 
-Load `extension/dist/` as an unpacked extension (`chrome://extensions` →
-Developer mode → Load unpacked).
+Load `extension/dist/chrome/` as an unpacked extension (`chrome://extensions` →
+Developer mode → Load unpacked). For Firefox/Safari builds see
+[`BROWSERS.md`](BROWSERS.md).
 
 ## Checks
 

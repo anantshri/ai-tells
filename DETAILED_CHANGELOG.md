@@ -9,6 +9,98 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-08-29 — Renamed to "AI Tells" + new icon
+
+**Summary:** Rebranded from "AI Cliché Highlighter" to **AI Tells** (repo/package
+`ai-tells`) and replaced the placeholder icon with a real magnifying-glass-over-
+"AI" mark.
+
+**Why:** Chosen name. The old working name/slug (`chrome-ai-detector`) was
+inaccurate — it's cross-browser and highlights *tells*, not a confident
+"detector".
+
+**What changed:**
+- Identifiers: `manifest.json` name/default_title → "AI Tells"; `package.json` +
+  `package-lock.json` name → `ai-tells`; `build.mjs` `GECKO_ID` →
+  `ai-tells@users.noreply.github.com`; `content.js` CSS-highlight namespaces
+  `aicliche-*` → `aitells-*`.
+- User-facing: popup title/heading; `README.md` (title, icon image, tagline,
+  "browser extension" wording); `extension/README.md` title; `NOTICE` header;
+  `docs/BROWSERS.md` Safari app-name/bundle-id; CHANGELOG `[Unreleased]` product
+  prefixes. Descriptions use the new tagline "helps you identify signs of
+  probable AI usage".
+- Icon: `extension/icons/generate.mjs` (dependency-free — SDF shapes + 4×
+  supersample AA + a minimal PNG encoder) renders icon16/32/48/128.png; a magnifying
+  glass (dark ring + handle) framing a bold "AI" with a highlighter swipe on a
+  rounded highlighter-yellow tile. `extension/icons/icon.svg` is the vector master.
+
+**How / commands run:**
+```
+sed / edits for identifiers + display names
+node icons/generate.mjs     # regenerate PNGs
+npm run build               # all three manifests now name "AI Tells"
+npx vitest run              # 287 passed
+aidc-scan                   # clean (incl. license-check on package.json change)
+```
+
+**Verification:** Built manifests confirmed `name: "AI Tells"` with correct
+per-browser background + `ai-tells@…` gecko id; icon visually verified at 128/16.
+Only the one historical DETAILED_CHANGELOG entry title keeps the old name (dated
+record of when it was created). 287/287 tests; `aidc-scan` clean.
+
+**Notes:** `.ai-container/project.env` (`AIDC_REPO_SLUG`, local `AIDC_WORKSPACE`
+path) is container infra keyed to the local directory, left untouched. Placeholder
+icon replaced — the new mark is ready, though a designer pass is welcome.
+
+## 2026-08-29 — Cross-browser support (Chrome, Edge, Opera, Firefox, Safari)
+
+**Summary:** The extension now targets all major engines. `build.mjs` emits a
+package per browser under `dist/`.
+
+**Why:** Requested — make it work on Chrome, Edge, Opera, Firefox, Safari.
+
+**Research (authoritative, cited in the agent run):** The only cross-engine
+divergence is the manifest `background` key — Chrome requires `service_worker`,
+Firefox uses `background.scripts` (event page; no service worker), Safari's
+service worker is buggy so it also uses `scripts`. Callback-style `chrome.*`
+works on all five (native on Chromium, porting-aid on Firefox/Safari), so **no
+code changes and no polyfill were needed**. Firefox requires
+`browser_specific_settings.gecko.id` for `storage.sync`. CSS Custom Highlight API
+floor: Chrome/Edge 105, Opera 91, Firefox 140, Safari 17.2 — the code already
+feature-detects it and the caret APIs, so older versions no-op cleanly.
+
+**What changed:**
+- `extension/build.mjs` — rewritten to build per-target dirs `dist/{chrome,
+  firefox,safari}`, applying a manifest transform per target (service_worker for
+  Chromium; `scripts` + gecko id/`strict_min_version` 140 for Firefox; `scripts`
+  only for Safari). esbuild target widened to chrome105/firefox140/safari17.
+  Accepts an optional target arg (`node build.mjs firefox`).
+- `extension/package.json` — `build:chrome` / `build:firefox` / `build:safari`
+  scripts.
+- `extension/docs/BROWSERS.md` (new) — compat table, min versions, per-browser
+  load/build/package steps (incl. `xcrun safari-web-extension-converter`), and
+  caveats. README/VERIFY paths updated (`dist` → `dist/chrome`); root README
+  install section now per-browser; roadmap item checked off.
+
+**How / commands run:**
+```
+npm run build     # -> dist/chrome, dist/firefox, dist/safari
+npx vitest run    # 287 passed
+aidc-scan         # clean
+```
+
+**Verification:** All three `manifest.json` files valid; the bundled
+`content.js` is byte-identical across targets (md5 dedupe = 1 — only manifests
+differ). Chrome=service_worker, Firefox=scripts+gecko(id, min 140),
+Safari=scripts+no-gecko confirmed. 287/287 tests; `aidc-scan` clean.
+
+**Notes / follow-ups:** Safari's final packaging needs macOS + Xcode (the
+converter has no Linux path) — `dist/safari` is prepared and ready to convert.
+Firefox can't apply `text-decoration` to custom highlights, so the underline is
+dropped there; the yellow/blue background colours still distinguish the two
+groups. Kept the `caretPositionFromPoint`→`caretRangeFromPoint` fallback so the
+floor stays at the Highlight-API versions rather than Chrome 128 / Safari 26.2.
+
 ## 2026-08-29 — Cataphoric-teaser detector (from a @yishan thread)
 
 **Summary:** Added a `cataphoric-teaser` detector for the forward-referencing

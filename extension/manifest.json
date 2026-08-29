@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "AI Cliché Highlighter",
+  "name": "AI Tells",
   "version": "0.1.0",
-  "description": "Highlights LLM writing clichés on any web page. Adapted from Simon Willison's llm-cliche-highlighter and Wikipedia's Signs of AI writing guide.",
+  "description": "Helps you identify signs of probable AI usage by highlighting LLM writing tells on any web page. Adapted from Simon Willison's llm-cliche-highlighter and Wikipedia's Signs of AI writing guide.",
   "permissions": ["storage", "activeTab", "scripting"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "AI Cliché Highlighter",
+    "default_title": "AI Tells",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",

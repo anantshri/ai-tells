@@ -1,4 +1,4 @@
-# AI Cliché Highlighter (Chrome extension)
+# AI Tells (browser extension)
 
 Highlights LLM writing "tells" on any web page — the same signals as Simon
 Willison's [llm-cliche-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter)
@@ -54,16 +54,21 @@ src/popup.*        scan/clear, per-site auto-scan toggle, per-pattern toggles
 
 ```
 npm install
-npm run build            # bundles src/ -> dist/ with esbuild
+npm run build            # emits dist/chrome, dist/firefox, dist/safari
+# or one target: npm run build:chrome | build:firefox | build:safari
 ```
 
-Then in Chrome: `chrome://extensions` → enable Developer mode → **Load unpacked**
-→ select the `extension/dist/` folder.
+- **Chrome/Edge/Opera/Brave:** `chrome://extensions` → Developer mode → **Load
+  unpacked** → `dist/chrome`
+- **Firefox:** `about:debugging` → **Load Temporary Add-on…** → `dist/firefox/manifest.json`
+- **Safari:** `xcrun safari-web-extension-converter dist/safari` (macOS + Xcode)
+
+Full matrix and caveats: [`docs/BROWSERS.md`](docs/BROWSERS.md).
 
 ## Test
 
 ```
-npm test                 # vitest, 201 cases
+npm test                 # vitest
 npx vitest run --coverage
 ```
 
@@ -74,7 +79,9 @@ jsdom; `tests/meta.test.js` checks the read-more links. See
 
 ## Requirements
 
-Chrome 105+ (CSS Custom Highlight API). Runs in the top frame only.
+CSS Custom Highlight API support: Chrome/Edge 105+, Opera 91+, Firefox 140+,
+Safari 17.2+. Below these it loads but no-ops (feature-detected). Runs in the top
+frame only. See [`docs/BROWSERS.md`](docs/BROWSERS.md).
 
 ## License
 
