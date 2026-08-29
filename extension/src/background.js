@@ -1,11 +1,9 @@
-// Service worker: seed default settings on install, and mirror each tab's
-// live match count onto the toolbar action badge. The content script scans the
-// page and reports its match count here; we render it as a per-tab badge so the
-// number tracks whichever tab is in front without opening the popup.
+// Service worker: seed default settings on install, and mirror each tab's page
+// grade onto the toolbar action badge. The content script scans the page,
+// computes a document-level AI grade, and reports the badge to render here
+// ({text, color}, or null to clear). The badge shows the fired-signal count,
+// tinted green→red by tier, per-tab so it tracks whichever tab is in front.
 
-import { badgeText } from './badge.js';
-
-const BADGE_BG = '#DC2626';
 const BADGE_FG = '#FFFFFF';
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -17,14 +15,21 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// The badge colours are global (not per-tab); set them whenever the worker
-// spins up. Text-colour control is newer, so feature-detect it.
-chrome.action.setBadgeBackgroundColor({ color: BADGE_BG });
+// Badge text colour is global; set it whenever the worker spins up. The
+// background colour is per-tab (it encodes the tier), so it's set per message.
+// setBadgeTextColor is newer, so feature-detect it.
 if (chrome.action.setBadgeTextColor) chrome.action.setBadgeTextColor({ color: BADGE_FG });
 
-function setBadge(tabId, count) {
-  if (typeof tabId !== 'number') return;
-  chrome.action.setBadgeText({ tabId, text: badgeText(count) }, () => void chrome.runtime.lastError);
+const swallow = () => void chrome.runtime.lastError;
+
+function clearBadge(tabId) {
+  chrome.action.setBadgeText({ tabId, text: '' }, swallow);
+}
+
+function renderBadge(tabId, badge) {
+  if (!badge || !badge.text) { clearBadge(tabId); return; }
+  chrome.action.setBadgeBackgroundColor({ tabId, color: badge.color }, swallow);
+  chrome.action.setBadgeText({ tabId, text: badge.text }, swallow);
 }
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
@@ -32,14 +37,14 @@ chrome.runtime.onMessage.addListener((msg, sender) => {
   // can't reach the worker (no externally_connectable) and other extensions get
   // a different sender.id; requiring sender.tab makes the trust boundary explicit.
   if (!sender || sender.id !== chrome.runtime.id || !sender.tab) return;
-  if (msg && msg.type === 'matchCount') setBadge(sender.tab.id, msg.count);
+  if (msg && msg.type === 'pageGrade' && typeof sender.tab.id === 'number') {
+    renderBadge(sender.tab.id, msg.badge);
+  }
 });
 
-// A per-tab badge otherwise persists across navigations, so a count from the
+// A per-tab badge otherwise persists across navigations, so a grade from the
 // previous page would linger on an unrelated one. Clear it the moment the tab
 // starts loading; if the new page is scanned, the content script re-reports.
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-  if (changeInfo.status === 'loading') {
-    chrome.action.setBadgeText({ tabId, text: '' }, () => void chrome.runtime.lastError);
-  }
+  if (changeInfo.status === 'loading') clearBadge(tabId);
 });

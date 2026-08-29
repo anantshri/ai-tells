@@ -9,6 +9,7 @@
 import { scan, bufferOffsetOf, matchAtBufferOffset } from './detect.js';
 import { patternsById } from './patterns.js';
 import { metaFor, isWikiPattern } from './meta.js';
+import { gradePage, badgeForGrade } from './stats.js';
 
 const HL_TIC = 'aitells-tic';
 const HL_WIKI = 'aitells-wiki';
@@ -29,6 +30,7 @@ let state = {
   matches: [],
   nodeStart: new Map(),
   enabled: new Set(),
+  lastGrade: null,
 };
 
 let observer = null;
@@ -237,12 +239,16 @@ function onKeyDown(event) {
 
 // ---- toolbar badge -----------------------------------------------------
 
-// Report the current match count to the service worker, which renders it as a
-// badge on the toolbar icon. Wrapped because the extension context can be torn
-// down (e.g. on reload) mid-scan, which makes sendMessage throw.
-function reportCount(count) {
+// Report the page grade to the service worker, which renders the fired-signal
+// count on the toolbar icon, tinted by tier. Passing a null badge (too little
+// text, or highlights cleared) clears it. Wrapped because the extension context
+// can be torn down (e.g. on reload) mid-scan, which makes sendMessage throw.
+function reportGrade(grade) {
   try {
-    chrome.runtime.sendMessage({ type: 'matchCount', count }, () => void chrome.runtime.lastError);
+    chrome.runtime.sendMessage(
+      { type: 'pageGrade', badge: badgeForGrade(grade) },
+      () => void chrome.runtime.lastError,
+    );
   } catch (_) {
     /* extension context invalidated — nothing to report to */
   }
@@ -280,7 +286,8 @@ function runScan() {
     // Leaving the page/window entirely fires no further mousemove, so hide here.
     document.documentElement.addEventListener('mouseleave', scheduleHide);
   }
-  reportCount(res.matches.length);
+  state.lastGrade = gradePage(res.buffer, document);
+  reportGrade(state.lastGrade);
   return res.matches.length;
 }
 
@@ -297,7 +304,8 @@ function deactivate() {
   }
   state.matches = [];
   state.nodeStart = new Map();
-  reportCount(0);
+  state.lastGrade = null;
+  reportGrade(null);
 }
 
 function scheduleRescan() {
@@ -345,7 +353,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       state.enabled = enabledFrom(s.disabledPatterns);
       const count = runScan();
       startObserver();
-      sendResponse({ ok: true, count });
+      sendResponse({ ok: true, count, grade: state.lastGrade });
     });
     return true;
   }
@@ -355,7 +363,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
   if (msg && msg.type === 'ping') {
-    sendResponse({ ok: true, active: state.active });
+    sendResponse({ ok: true, active: state.active, grade: state.lastGrade });
     return true;
   }
   return false;

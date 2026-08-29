@@ -3,6 +3,7 @@
 // the content script reacts to changes automatically.
 
 import { allMeta } from './meta.js';
+import { TIER_COLOR, MIN_WORDS } from './stats.js';
 
 const els = {
   status: document.getElementById('status'),
@@ -14,6 +15,11 @@ const els = {
   patternList: document.getElementById('pattern-list'),
   allOn: document.getElementById('all-on'),
   allOff: document.getElementById('all-off'),
+  analysis: document.getElementById('analysis'),
+  gradeChip: document.getElementById('grade-chip'),
+  gradeLabel: document.getElementById('grade-label'),
+  gradeSub: document.getElementById('grade-sub'),
+  signalList: document.getElementById('signal-list'),
 };
 
 let activeTab = null;
@@ -55,6 +61,42 @@ function sendToTab(tabId, message) {
 }
 
 function setStatus(text) { els.status.textContent = text; }
+
+// Render the document-level AI grade panel from a grade object (from a scan or
+// ping response). A falsy grade hides the panel entirely.
+function renderAnalysis(grade) {
+  if (!grade) { els.analysis.hidden = true; return; }
+  els.analysis.hidden = false;
+  els.signalList.textContent = '';
+
+  if (!grade.eligible) {
+    els.gradeChip.textContent = '–';
+    els.gradeChip.style.background = '#a29b8d';
+    els.gradeLabel.textContent = 'Not graded';
+    els.gradeSub.textContent = `Needs ≥${MIN_WORDS} words (found ${grade.words}).`;
+    return;
+  }
+
+  els.gradeChip.textContent = String(grade.firedCount);
+  els.gradeChip.style.background = TIER_COLOR[grade.tier] || '#a29b8d';
+  els.gradeLabel.textContent = `${grade.tierLabel} — ${grade.firedCount}/${grade.applicableCount} signals`;
+  els.gradeSub.textContent = `${grade.words} words · ${grade.sentences} sentences`;
+
+  for (const s of grade.signals) {
+    const row = document.createElement('li');
+    row.className = 'signal-row' + (s.fired ? ' fired' : '') + (s.applicable ? '' : ' na');
+    const dot = document.createElement('span');
+    dot.className = 'signal-dot';
+    const name = document.createElement('span');
+    name.className = 'signal-name';
+    name.textContent = s.label;
+    const val = document.createElement('span');
+    val.className = 'signal-val';
+    val.textContent = s.display;
+    row.append(dot, name, val);
+    els.signalList.appendChild(row);
+  }
+}
 
 function renderPatterns() {
   const off = new Set(settings.disabledPatterns);
@@ -115,12 +157,14 @@ async function onScan() {
   const resp = await sendToTab(activeTab.id, { type: 'scan' });
   if (!resp || !resp.ok) { setStatus('Could not scan this page.'); return; }
   setStatus(resp.count === 1 ? '1 match highlighted.' : `${resp.count} matches highlighted.`);
+  renderAnalysis(resp.grade);
 }
 
 async function onClear() {
   if (!activeTab) return;
   await sendToTab(activeTab.id, { type: 'clear' });
   setStatus('Highlights cleared.');
+  renderAnalysis(null);
 }
 
 async function init() {
@@ -149,6 +193,13 @@ async function init() {
   els.allowSite.addEventListener('change', onAllowSite);
   els.allOn.addEventListener('click', () => setAll(true));
   els.allOff.addEventListener('click', () => setAll(false));
+
+  // If the page was already scanned (e.g. an allowlisted auto-scan), surface
+  // its grade without making the user click Scan again.
+  if (scannable) {
+    const pong = await sendToTab(activeTab.id, { type: 'ping' });
+    if (pong && pong.grade) renderAnalysis(pong.grade);
+  }
 }
 
 init();

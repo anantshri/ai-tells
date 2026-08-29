@@ -9,6 +9,78 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-08-29 — Document-level page grading + graded toolbar icon
+
+**Summary:** Implemented the deferred document-level "AI-likelihood" scorer from
+`extension/docs/FUTURE_WORK.md`. A scan now computes a model-free, O(n)
+stylometric grade over the page's flattened text; the toolbar badge shows the
+count of co-firing signals tinted by tier (green→red), and the popup gains an
+Analysis panel with the per-signal breakdown and the false-positive caveat. The
+badge, which last branch showed the raw phrase-match count, now shows the grade.
+
+**Why:** The phrase highlighter is a per-span detector; well-edited AI prose can
+trip zero phrase detectors yet still read as machine-made (the user's earlier
+challenge paragraph did exactly that). A convergence-based document score is the
+complementary modality the design doc scoped. User picked: badge = fired-signal
+count + severity colour; scope = full (engine + icon + popup panel).
+
+**What changed:**
+- `src/stats.js` (new): pure engine.
+  - Eight signals, each `{key,label,applicable,fired,value,display}`:
+    sentence-length burstiness (CV < 0.4), paragraph-length uniformity (CV < 0.4,
+    needs ≥4 paragraphs), em-dash density (> 10 per 1k words), transition-opener
+    ratio (> 10% of sentences), expletive-opener ratio ("It is/There are/…",
+    > 10%), rule-of-three density (≥2 triads and > 5 per 1k words), unicode
+    typography cluster (curly quotes + ellipsis + em-dash all present), and a
+    DOM bold-lead-in-list ratio (> 50% of ≥3 `<li>` led by `<strong>/<b>`).
+  - `gradePage(buffer, doc?)` gates on `MIN_WORDS` (150) and `MIN_SENTENCES` (8),
+    then returns `{eligible, words, sentences, signals[], applicableCount,
+    firedCount, tier, tierLabel}`. `tierOf(n)`: 0–2 low, 3–4 some, 5–6 elevated,
+    7+ high. `badgeForGrade(grade)` → `{text, color}` (fired count + tier colour)
+    or `null` when the page is too short to grade.
+- `src/content.js`: computes `gradePage(res.buffer, document)` at the end of
+  `runScan()`, stores `state.lastGrade`, reports `{type:'pageGrade', badge}` to
+  the worker (null on `deactivate()`), and returns the grade in the `scan`/`ping`
+  message responses so the popup can render it.
+- `src/background.js`: replaced the match-count path with a `pageGrade` handler
+  that sets a **per-tab** badge text + background colour
+  (`chrome.action.setBadgeBackgroundColor({tabId,color})`); still clears on
+  `tabs.onUpdated` `loading`. `src/badge.js` (the old count formatter) and its
+  test were removed.
+- `src/popup.{html,css,js}`: new Analysis panel — coloured grade chip, tier +
+  fired/applicable count, per-signal rows (fired = bold + red dot, n/a dimmed),
+  and the caveat. Rendered from the `scan` response and from a `ping` on popup
+  open (so an auto-scanned page shows its grade immediately).
+- `tests/stats.test.js` (new, 22 cases): helpers, tier thresholds, eligibility
+  gating (incl. non-string buffer), an AI fixture (converges ≥5 signals →
+  elevated) vs a human fixture (eligible, 0 signals → green "0"), the DOM
+  bold-list signal (fires / doesn't / n/a / no-lists), and display edge cases.
+  `vitest.config.js`: swapped `badge.js` for `stats.js` in the coverage include.
+
+**How / commands run:**
+```
+node /tmp/grade_probe*.mjs   # tuned AI/human fixtures against real thresholds
+npm test -- --coverage       # 314 passed; stats.js 100% stmts/lines/funcs
+npm run build                # dist/{chrome,firefox,safari}
+aidc-scan                    # clean
+```
+
+**Verification:** stats.js at 100% statement/line/function coverage (remaining
+uncovered branches are defensive divide-by-zero / type guards unreachable after
+the eligibility check). Re-graded the user's challenge paragraph: 126 words →
+**ineligible**, so the grader abstains — the intended behaviour for short text.
+Confirmed both `content.js` and `background.js` bundles carry the `pageGrade`
+path. Browser-integration behaviour (per-tab badge colour, popup panel) is
+manual-verify per `docs/VERIFY.md` steps 2–3.
+
+**Notes:** No new permissions. Thresholds are deliberately conservative and the
+verdict is convergence-based (no single signal convicts), per the design doc's
+non-negotiable caveat. Remaining `FUTURE_WORK` signals (MATTR lexical diversity,
+nominalization/adverb ratio, punctuation-variety poverty) were left out to keep
+the first cut high-precision; they can be added as further signals later.
+
+---
+
 ## 2026-08-29 — Negative parallelism: catch the trailing "X, not Y" antithesis
 
 **Summary:** Extended the `not-just` detector to catch the trailing antithesis

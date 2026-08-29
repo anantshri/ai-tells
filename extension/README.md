@@ -27,6 +27,11 @@ guide. Hover a highlight to see which signal was picked and a link to read more.
 - **Hover tooltip** naming the signal, its description, and a **Read more** link
   (Wikipedia guide section for the Wikipedia group; the source catalogue for the
   rhetorical tics).
+- **Document-level page grade** (model-free, no API/ML). A scan also scores the
+  whole page against eight stylometric signals; the toolbar badge shows how many
+  co-fired, tinted green→red by tier, and the popup's Analysis panel lists the
+  per-signal breakdown with a false-positive caveat. Short pages (< ~150 words)
+  are left ungraded — no single signal convicts.
 - **Allowlist activation.** Opt a site in and it auto-scans on load and re-scans
   on DOM changes; everywhere else, click **Scan this page** in the popup.
 - `colon-triple` ships **off** by default (noisy on technical pages); toggle any

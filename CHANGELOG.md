@@ -12,6 +12,9 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Changed
 
+- AI Tells: the toolbar badge now reflects the page **grade** (fired-signal
+  count, colour-coded by tier) instead of the raw phrase-match count. Phrase
+  matches remain highlighted on the page and counted in the popup status.
 - AI Tells: the negative-parallelism detector (`not-just`, now surfaced as
   "Negative parallelisms") also catches the trailing "X is A, not B" antithesis
   — the "…is a hypothesis, not a control" closing kicker LLMs favour. Previously
@@ -19,10 +22,15 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Added
 
-- AI Tells: the toolbar icon now shows a badge with the number of matches
-  found on the current tab after a scan (auto-scan on allowlisted sites, or
-  "Scan this page" in the popup). The badge clears when highlights are cleared
-  or the tab navigates.
+- AI Tells: **document-level page grading**. Alongside the per-phrase
+  highlighter, a scan now computes a model-free stylometric grade from eight
+  independent signals (sentence-length burstiness, em-dash density, transition
+  and expletive openers, rule-of-three density, unicode-typography cluster,
+  paragraph-length uniformity, and DOM bold-lead-in lists). The toolbar icon
+  badge shows how many signals co-fired, tinted green→amber→orange→red by tier,
+  and the popup gains an **Analysis panel** with the overall grade, a per-signal
+  breakdown, and the "signals, not a verdict" false-positive caveat. Pages with
+  too little text (< ~150 words) are deliberately left ungraded.
 - Cross-browser builds: `npm run build` now emits `dist/chrome` (Chrome/Edge/
   Opera/Brave), `dist/firefox` (event-page background + gecko add-on id), and
   `dist/safari` (Xcode-convertible). Same code everywhere — only the manifest
