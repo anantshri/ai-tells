@@ -335,11 +335,83 @@ const patterns = [
     find: makeRegexFinder(/[;:,]\s+[^.;:!?\n]{2,50}\s(?:did|does|do|was|were|is|are|has|have|had|can|could|would|will)(?:n['’]t)?\s*[.;]|\b(?:Maybe|Perhaps)\s+\w+[^.!?\n]{0,40}\s(?:would|could|might|should|did|had|was|is)(?:n['’]t)?\s+(?:have\s*)?\./g)
   },
   {
+    id: 'chat-boilerplate',
+    name: 'Chatbot pleasantries',
+    description: 'Conversational filler pasted from an assistant reply: sentence-initial “Certainly!”, “Absolutely!”, “Great question”, plus “I’d be happy to help”, “I hope this helps”, “feel free to / don’t hesitate to”, “let me know if you …”.',
+    find: makeRegexFinder(/(?:^|[.!?"'”’\n–—]\s*)(?:certainly|absolutely|of\s+course|great\s+question|excellent\s+question)\s*[!,]|\bI(?:['’]d|\s+would)\s+be\s+(?:more\s+than\s+)?happy\s+to\s+help\b|\bI\s+hope\s+this\s+helps\b|\b(?:feel\s+free|do\s+not\s+hesitate|don['’]t\s+hesitate)\s+to\b|\blet\s+me\s+know\s+if\s+you\b/gi)
+  },
+  {
+    id: 'scene-setting',
+    name: '“In today’s fast-paced world”',
+    description: 'Throat-clearing openers that set an epochal scene: “in today’s fast-paced / digital / ever-changing world”, “in a world where”, “in the realm of”, “when it comes to”.',
+    find: makeRegexFinder(/\bin\s+(?:today['’]s|a|the|this|our)\s+(?:fast-paced|ever-(?:changing|evolving)|rapidly\s+(?:changing|evolving)|digital|modern|competitive|hyper-connected)\s+(?:world|age|era|landscape|society|market|economy)\b|\bin\s+a\s+world\s+where\b|\bin\s+the\s+realm\s+of\b|\bwhen\s+it\s+comes\s+to\b/gi)
+  },
+  {
+    id: 'journey-metaphor',
+    name: 'Journey & discovery metaphors',
+    description: 'Grand exploration imagery: “embark on a journey”, “navigating the complexities of”, “pave the way”, “unlock the potential/secrets”, “shed light on”, “at the forefront of”, “a beacon of”, “treasure trove”.',
+    find: makeRegexFinder(/\bembark(?:ing|ed)?\s+on\s+(?:a|an|this)\s+(?:journey|adventure|quest|exploration|voyage)\b|\bnavigat(?:e|es|ing|ed)\s+the\s+(?:complex\w*|landscape|world|challenges|intricacies|maze|nuances)\b|\bpav(?:e|es|ed|ing)\s+the\s+way\b|\bunlock(?:s|ing|ed)?\s+the\s+(?:power|potential|secret|secrets|key)\b|\bshed(?:ding)?\s+light\s+on\b|\bat\s+the\s+forefront\s+of\b|\ba\s+beacon\s+of\b|\btreasure\s+trove\b/gi)
+  },
+  {
+    id: 'dive-in',
+    name: '“Dive into / deep dive”',
+    description: 'The invitation-to-explore cliché: “let’s dive into”, “dive deep into”, “deep dive”, “let’s explore”, “let’s take a closer look”.',
+    find: makeRegexFinder(/\b(?:dive|diving|dives)\s+(?:deep\s+)?into\b|\bdeep\s+dive\b|\blet['’]s\s+(?:dive\s+in\b|explore\b|take\s+a\s+(?:closer\s+)?look\b)/gi)
+  },
+  {
+    id: 'hype-buzzwords',
+    name: 'Hype & marketing buzzwords',
+    description: 'Empty superlatives and business jargon: “game-changer”, “cutting-edge”, “state-of-the-art”, “top-notch”, “best-in-class”, “next-level”, “world-class”, “the possibilities are endless”, “move the needle”, “low-hanging fruit”, “paradigm shift”.',
+    find: makeRegexFinder(/\bgame[-\s]?chang(?:er|ing)\b|\bcutting[-\s]edge\b|\btop[-\s]notch\b|\bstate[-\s]of[-\s]the[-\s]art\b|\bbest[-\s]in[-\s]class\b|\bnext[-\s]level\b|\bworld[-\s]class\b|\bthe\s+possibilities\s+are\s+endless\b|\bmove\s+the\s+needle\b|\blow[-\s]hanging\s+fruit\b|\bparadigm\s+shift\b|\btake\s+it\s+to\s+the\s+next\s+level\b/gi)
+  },
+  {
+    id: 'conclusion-wrapper',
+    name: 'Formulaic conclusions',
+    description: 'Boilerplate wrap-up openers: sentence-initial “In conclusion”, “In summary”, “In essence”, “To sum up”, “All in all”, “At the end of the day”, “Ultimately,”.',
+    find: makeRegexFinder(/(?:^|[.!?\n–—]\s+)(?:In\s+conclusion|In\s+summary|In\s+essence|To\s+sum\s+up|To\s+summari[sz]e|All\s+in\s+all|At\s+the\s+end\s+of\s+the\s+day|Ultimately)\s*,/gi)
+  },
+  {
+    id: 'cataphoric-teaser',
+    name: 'Cataphoric teaser',
+    description: 'The forward-referencing suspense hook — a payoff withheld to manufacture cheap curiosity, the LLM descendant of clickbait: “Here’s the part that nobody tells you”, “Here’s what most people get wrong”, “The part most people sleep on”, “what nobody tells you”.',
+    find: makeRegexFinder(/\bhere(?:['’]s|\s+is)\s+(?:what\s+|the\s+[\w'’-]+\s+)(?:that\s+)?(?:most\s+people|nobody|no\s+one|everyone|they|you)\b|\bthe\s+(?:part|thing|secret|trick|detail|bit|reason|truth|catch)\s+(?:that\s+)?(?:most\s+people|nobody|no\s+one|everyone)\b|\bwhat\s+(?:most\s+people|nobody|no\s+one|everyone)\s+(?:get|gets|got)\s+(?:wrong|right)\b|\bwhat\s+(?:nobody|no\s+one)\s+(?:tell|tells|told)s?\s+you\b|\b(?:that\s+)?(?:nobody|no\s+one)\s+(?:talks|talked|tells|told)\s+(?:about|you)\b|\bmost\s+people\s+(?:sleep\s+on\b|miss\b|overlook\b|get\s+(?:this|it|that)\s+wrong\b)|\b(?:it|this|that)(?:['’]s|\s+is)\s+not\s+what\s+you\s+(?:think|expect|expected|imagine)\b/gi)
+  },
+  {
+    id: 'hook-opener',
+    name: 'Superlative hook opener',
+    description: 'The engagement-bait opener that promises a hot take: “What I find most annoying about …”, “The stupidest thing you could do is …”, “The most interesting thing to notice is …”.',
+    find: makeRegexFinder(/\bwhat\s+I\s+(?:find|found)\s+(?:most|so|really|truly|absolutely|the\s+most)\s+[\w-]+\s+about\b|\bthe\s+(?:single\s+)?(?:most|least|best|worst|smartest|dumbest|stupidest|craziest|weirdest|biggest|hardest|coolest|scariest|wildest)\s+(?:[\w-]+\s+)?(?:thing|mistake|lesson|part|move|advice)\s+(?:you|we|i|they|anyone|to)\b/gi)
+  },
+  {
+    id: 'false-authority',
+    name: 'Vague appeals to research',
+    description: 'Hand-waving at unnamed evidence: “studies have shown”, “research suggests / indicates”, “data shows”, “science tells us”, “the data speaks for itself”, “it is widely believed”, “many people argue”.',
+    find: makeRegexFinder(/\b(?:studies|research|data|science|evidence)\s+(?:have\s+|has\s+|consistently\s+)?(?:shows?|shown|suggests?|indicates?|reveals?|proves?|demonstrates?|confirms?|tells?\s+us|speaks?\s+for\s+itself)\b|\bit\s+is\s+widely\s+(?:known|believed|accepted|regarded|recognized)\b|\b(?:many|some)\s+(?:people\s+)?(?:believe|argue|would\s+argue|claim)\b/gi)
+  },
+  {
+    id: 'corporate-buzzwords',
+    name: 'Corporate buzzword pairings',
+    description: 'Meaningless business collocations: “robust framework”, “holistic approach”, “seamless integration”, “comprehensive solution”, “actionable insights”, “value proposition”, “core competency”, “synergy”, “mission-critical”, “thought leadership”.',
+    find: makeRegexFinder(/\b(?:robust|scalable|flexible)\s+framework\b|\bholistic\s+approach\b|\bseamless\s+integration\b|\bcomprehensive\s+solution\b|\bactionable\s+insights?\b|\bvalue\s+proposition\b|\bcore\s+competenc(?:y|ies)\b|\bsynerg(?:y|ies|istic)\b|\bmission[-\s]critical\b|\bthought\s+leader(?:ship)?\b/gi)
+  },
+  {
+    id: 'fiction-slop',
+    name: 'AI fiction clichés',
+    description: 'Stock creative-writing tells LLMs overuse: “barely above a whisper”, “took a deep breath”, “a shiver ran down her spine”, “heart pounding”, “eyes widened”, “breath hitched”, “little did they know”, “the air was thick with”, “casting long shadows”.',
+    find: makeRegexFinder(/\b(?:voice\s+(?:barely\s+)?(?:above\s+)?a\s+whisper|barely\s+above\s+a\s+whisper)\b|\btook\s+a\s+deep\s+breath\b|\blet\s+out\s+a\s+breath\s+(?:he|she|they|I)\s+(?:didn['’]t|did\s+not)\s+(?:know|realize)\b|\b(?:a\s+shiver\s+ran|sent\s+shivers?)\s+down\s+(?:his|her|their|my)\s+spine\b|\bheart\s+(?:pounding|racing|hammering|thundering)\b|\beyes\s+widen(?:ed|ing)?\b|\bbreath\s+hitched\b|\blittle\s+did\s+(?:he|she|they|I|we)\s+know\b|\bthe\s+air\s+was\s+thick\s+with\b|\bcasting\s+long\s+shadows\b/gi)
+  },
+  {
+    id: 'something-for-everyone',
+    name: '“Something for everyone”',
+    description: 'The inclusive sign-off: “there’s something for everyone”, “whether you’re a beginner or a pro, you’ll find …”.',
+    find: makeRegexFinder(/\bsomething\s+for\s+everyone\b|\bwhether\s+you(?:['’]re|\s+are)\s+[^.!?\n]{1,50}?,\s*(?:there['’]s|you['’]ll\s+find|you\s+will\s+find)\b/gi)
+  },
+  {
     id: 'ai-vocab',
     group: WIKI_GROUP,
     name: 'AI vocabulary words',
-    description: 'Words LLMs lean on far more than people do: \u201cdelve\u201d, \u201ctapestry\u201d, \u201cmeticulous\u201d, \u201cpivotal\u201d, \u201cintricate\u201d, \u201cinterplay\u201d, \u201cunderscore\u201d, \u201cgarner\u201d, \u201cbolster\u201d, \u201cvibrant\u201d, \u201cbustling\u201d, \u201cmultifaceted\u201d, \u201cseamless\u201d, \u201cever-evolving\u201d, plus the newer-era favourites \u201cshowcase\u201d, \u201cfoster\u201d, \u201cleverage\u201d, \u201cenhance\u201d, \u201calign with\u201d. One hit can be coincidence \u2014 several is a tell.',
-    find: makeRegexFinder(/\b(?:delv(?:e|es|ed|ing)|tapestr(?:y|ies)|meticulous(?:ly)?|pivotal|intricate(?:ly)?|intricacies|interplay|underscor(?:e|es|ed|ing)|garner(?:s|ed|ing)?|bolster(?:s|ed|ing)?|vibrant|bustling|multifaceted|seamless(?:ly)?|commendable|ever-evolving|showcas(?:e|es|ed|ing)|foster(?:s|ed|ing)|leverag(?:e|es|ed|ing)|enhanc(?:e|es|ed|ing)|align(?:s|ed|ing)?\s+with)\b/gi)
+    description: 'Words LLMs lean on far more than people do \u2014 validated by frequency studies of post-ChatGPT writing (Kobak et al.; Liang et al.). \u201cdelve\u201d, \u201ctapestry\u201d, \u201cmeticulous\u201d, \u201cpivotal\u201d, \u201cintricate\u201d, \u201cunderscore\u201d, \u201cgarner\u201d, \u201cbolster\u201d, \u201cmultifaceted\u201d, \u201cseamless\u201d, \u201cshowcase\u201d, \u201cleverage\u201d, plus rarer high-signal tells \u201celucidate\u201d, \u201cdelineate\u201d, \u201cjuxtapose\u201d, \u201ctranscend\u201d, \u201cunveil\u201d, \u201cburgeoning\u201d, \u201cgroundbreaking\u201d, \u201cunparalleled\u201d, \u201cnuanced\u201d, \u201cmyriad\u201d, \u201cprowess\u201d. One hit can be coincidence \u2014 several is a tell.',
+    find: makeRegexFinder(/\b(?:delv(?:e|es|ed|ing)|tapestr(?:y|ies)|meticulous(?:ly)?|pivotal|intricate(?:ly)?|intricacies|interplay|underscor(?:e|es|ed|ing)|garner(?:s|ed|ing)?|bolster(?:s|ed|ing)?|vibrant|bustling|multifaceted|seamless(?:ly)?|commendable|ever-evolving|showcas(?:e|es|ed|ing)|foster(?:s|ed|ing)|leverag(?:e|es|ed|ing)|enhanc(?:e|es|ed|ing)|align(?:s|ed|ing)?\s+with|elucidat(?:e|es|ed|ing)|delineat(?:e|es|ed|ing)|juxtapos(?:e|es|ed|ing|ition)|streamlin(?:e|es|ed|ing)|catalyz(?:e|es|ed|ing)|transcend(?:s|ed|ing)?|unveil(?:s|ed|ing)?|illuminat(?:e|es|ed|ing)|spearhead(?:s|ed|ing)?|exemplif(?:y|ies|ied|ying)|encapsulat(?:e|es|ed|ing)|propel(?:s|led|ling)?|burgeoning|noteworthy|groundbreaking|unparalleled|transformative|nuanced|renowned|invaluable|versatile|myriad|prowess)\b/gi)
   },
   {
     id: 'not-just',

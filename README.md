@@ -6,7 +6,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4.svg?logo=googlechrome&logoColor=white)](./extension/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-232%20passing-brightgreen.svg)](./extension/tests)
+[![Tests](https://img.shields.io/badge/tests-287%20passing-brightgreen.svg)](./extension/tests)
 [![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen.svg)](#testing)
 [![Zero runtime deps](https://img.shields.io/badge/runtime%20deps-0-success.svg)](./extension/package.json)
 
@@ -14,13 +14,18 @@
 
 ---
 
-Paste-free. It reads the text already on the page, highlights the sentences that
-match known LLM writing tells, and on hover shows **which signal** it matched
-plus a link to **read more** about it. The detection engine is ported from Simon
-Willison's [llm-cliché-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter),
-extended with tells from Wikipedia's
+It reads the text already on the page, highlights the sentences that match known
+LLM writing tells, and on hover shows **which signal** it matched plus a link to
+**read more** about it.
+
+It started as **Simon Willison's
+[llm-cliché-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter)**
+— a paste-in-a-textarea tool — whose detection engine we ported into a Chrome
+extension so it works on any live page. From there we grew the signal set well
+beyond the original: tells from Wikipedia's
 [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
-guide.
+guide, word lists validated by post-ChatGPT frequency studies, and a batch of
+**crowd-sourced signals** contributed by the community (see [Credits](#credits)).
 
 > **Why:** LLM prose has recognisable habits — "not just X, but Y", "stands as a
 > testament", "delve", stacked rhetorical questions, "no fluff, no filler". This
@@ -28,8 +33,9 @@ guide.
 
 ## Features
 
-- **41 detectors** in two groups — *Rhetorical tics* (yellow) and *Signs of AI
-  writing (Wikipedia)* (blue).
+- **53 detectors** in two groups — *Rhetorical tics* (yellow) and *Signs of AI
+  writing (Wikipedia)* (blue) — including research-backed phrase clichés and a
+  vocabulary list validated by post-ChatGPT word-frequency studies.
 - **No DOM mutation** — highlights are painted with the
   [CSS Custom Highlight API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API),
   so pages and web apps aren't disturbed.
@@ -37,7 +43,7 @@ guide.
   and links to the source (Wikipedia guide section, or the original tool).
 - **Per-site allowlist** — opt a site in and it auto-scans on load and re-scans
   as the page changes; everywhere else, scan on demand from the popup.
-- **Toggle any detector** — 41 individually switchable; the noisy `colon-triple`
+- **Toggle any detector** — 53 individually switchable; the noisy `colon-triple`
   ships off by default.
 - **Private & self-contained** — everything runs locally, **zero runtime
   dependencies**, no network calls, nothing leaves your browser.
@@ -83,7 +89,7 @@ into one buffer + offset map      over the buffer                   back to DOM
 
 | File | Responsibility |
 | --- | --- |
-| `extension/src/patterns.js` | Detector engine — 41 patterns, factories, dedup (38 ported verbatim) |
+| `extension/src/patterns.js` | Detector engine — 53 patterns, factories, dedup (38 ported verbatim) |
 | `extension/src/detect.js`   | DOM ↔ buffer bridge; match → `Range` mapping; hover lookup; input cap |
 | `extension/src/meta.js`     | Per-pattern group + "read more" URL |
 | `extension/src/content.js`  | Highlight painting, interactive tooltip, `MutationObserver` |
@@ -107,7 +113,7 @@ verified via [`extension/docs/VERIFY.md`](./extension/docs/VERIFY.md).
 
 ## Testing
 
-- **232 tests** (Vitest) — including the reference tool's own positive/negative
+- **287 tests** (Vitest) — including the reference tool's own positive/negative
   cases run against the port, jsdom tests for the DOM bridge (cross-node ranges,
   node exclusion), and ReDoS/input-cap guards.
 - **~96% line coverage** on the detection/bridge modules.
@@ -136,6 +142,11 @@ caret hit-testing). Runs in the top frame only.
 
 ## Roadmap
 
+- [ ] **Document-level "AI-likelihood" scoring** — model-free stylometric signals
+      (sentence-length burstiness, em-dash density, transition-opener ratio,
+      bold-lead-in-list ratio, Unicode-typography co-occurrence) surfaced as a
+      convergence-based score in the popup. Design + rationale in
+      [`extension/docs/FUTURE_WORK.md`](./extension/docs/FUTURE_WORK.md).
 - [ ] Replace placeholder icons with a real mark
 - [ ] Dynamic per-allowlisted-origin content-script registration (tighter
       permissions than the current `<all_urls>` declaration)
@@ -152,5 +163,24 @@ detectors from Wikipedia's *Signs of AI writing* guide (CC BY-SA). See
 
 ## Credits
 
-- Detection heuristics: **Simon Willison** — [llm-cliché-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter)
-- Additional signs: **Wikipedia** — [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
+This project began as **Simon Willison's
+[llm-cliché-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter)**
+(Apache-2.0); we ported its detection engine into this Chrome extension and then
+added many more signals — several of them **crowd-sourced from the community**.
+
+- **Detection engine & original heuristics** — Simon Willison,
+  [llm-cliché-highlighter](https://tools.simonwillison.net/llm-cliche-highlighter)
+- **"Signs of AI writing" detectors** — Wikipedia,
+  [Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
+- **Vocabulary word lists** — post-ChatGPT frequency studies (Kobak et al.,
+  *Science Advances* 2025; Liang et al., ICML 2024)
+
+Community-sourced signals (via X/Twitter):
+
+- **[@yishan](https://x.com/yishan)** — the "cataphoric teaser"
+  ([tweet](https://x.com/yishan/status/2093268215853985869)) and "negative
+  parallelism" ([tweet](https://x.com/yishan/status/2093268324306284780))
+- **[@landosembery](https://x.com/landosembery)** — superlative hook openers
+  ([tweet](https://x.com/landosembery/status/2093277440432828554))
+- **[@petermajewski](https://x.com/petermajewski)** — more cataphoric-teaser
+  examples ([tweet](https://x.com/petermajewski/status/2093481467812688010))

@@ -50,7 +50,13 @@ describe('engine invariants', () => {
     // Patterns added on top of the ported reference set are not represented in
     // the reference EXAMPLE, so they should not appear; every original pattern
     // still trips exactly once.
-    const ADDED = new Set(['copulative-avoidance', 'vague-association', 'canned-notability']);
+    const ADDED = new Set([
+      'copulative-avoidance', 'vague-association', 'canned-notability',
+      'chat-boilerplate', 'scene-setting', 'journey-metaphor', 'dive-in',
+      'hype-buzzwords', 'conclusion-wrapper',
+      'false-authority', 'corporate-buzzwords', 'fiction-slop', 'something-for-everyone',
+      'cataphoric-teaser', 'hook-opener',
+    ]);
     const all = new Set(patterns.map((p) => p.id));
     const { matches } = collectMatches(EXAMPLE, all);
     const hitIds = new Set(matches.map((m) => m.patternId));

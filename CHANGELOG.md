@@ -12,6 +12,21 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Added
 
+- AI Cliché Highlighter: `hook-opener` detector — Twitter-style superlative
+  engagement bait ("What I find most annoying about…", "The stupidest thing you
+  could do is…"); and `cataphoric-teaser` extended with "it's not what you think".
+  53 detectors. (Via @landosembery / @petermajewski threads.)
+- AI Cliché Highlighter: `cataphoric-teaser` detector — the forward-referencing
+  suspense hook ("Here's the part nobody tells you", "what most people get
+  wrong"), the LLM descendant of clickbait (via a @yishan thread).
+- AI Cliché Highlighter: ten research-backed phrase detectors (chatbot
+  pleasantries, scene-setting openers, journey metaphors, "dive into", hype
+  buzzwords, formulaic conclusions, vague appeals to research, corporate
+  buzzwords, AI fiction clichés, "something for everyone") and a vocabulary
+  detector expanded with words validated by post-ChatGPT frequency studies
+  (Kobak/Liang et al.) — 51 detectors total, up from 41.
+- `extension/docs/FUTURE_WORK.md` documenting a planned document-level
+  statistical/stylometric "AI-likelihood" scoring layer.
 - Repo-level `README.md` (GitHub-style), `LICENSE` (GNU GPL v3.0), and `NOTICE`
   with third-party attribution.
 - AI Cliché Highlighter: three new Wikipedia-guide signs (copulative avoidance,
@@ -30,6 +45,10 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 ### Changed
 
 - Relicensed the extension from MIT to GPL-3.0-or-later (`package.json`).
+- README: reframed the intro around the project's origin (ported from Simon
+  Willison's tool into a Chrome extension, then extended) and expanded Credits
+  with the community X/Twitter sources for crowd-sourced signals; removed the
+  misleading "Paste-free." lead. `NOTICE` gained a community-credits block.
 
 ### Deprecated
 

@@ -37,6 +37,87 @@ const cases = [
   ['canned-notability', 'The film garnered widespread critical acclaim.', 1],
   ['canned-notability', 'It was featured in several media outlets.', 1],
   ['canned-notability', 'The band played a small show downtown.', 0],
+
+  // Chat boilerplate
+  ['chat-boilerplate', 'Certainly! Here is your summary.', 1],
+  ['chat-boilerplate', "I'd be happy to help with that.", 1],
+  ['chat-boilerplate', "Don't hesitate to reach out.", 1],
+  ['chat-boilerplate', 'He absolutely nailed the landing.', 0],
+
+  // Scene setting
+  ['scene-setting', 'In today’s fast-paced world, attention is scarce.', 1],
+  ['scene-setting', 'In the realm of astrophysics, scale matters.', 1],
+  ['scene-setting', 'When it comes to security, defaults matter.', 1],
+  ['scene-setting', 'The world of finance is large.', 0],
+
+  // Journey metaphors
+  ['journey-metaphor', 'We embark on a journey through the codebase.', 1],
+  ['journey-metaphor', 'Navigating the complexities of the tax code.', 1],
+  ['journey-metaphor', 'These reforms pave the way for growth.', 1],
+  ['journey-metaphor', 'unlock the potential of your team', 1],
+  ['journey-metaphor', 'They took a long journey home.', 0],
+
+  // Dive in
+  ['dive-in', "Let's dive into the numbers.", 1],
+  ['dive-in', 'A deep dive into performance.', 1],
+  ['dive-in', 'The submarine dove into the trench.', 0],
+
+  // Hype buzzwords
+  ['hype-buzzwords', 'This tool is a game-changer.', 1],
+  ['hype-buzzwords', 'a state-of-the-art, best-in-class system', 2],
+  ['hype-buzzwords', 'It caused a paradigm shift.', 1],
+  ['hype-buzzwords', 'She stood at the edge of the cliff.', 0],
+
+  // Conclusion wrappers
+  ['conclusion-wrapper', 'In conclusion, the launch succeeded.', 1],
+  ['conclusion-wrapper', 'Great work. Ultimately, it paid off.', 1],
+  ['conclusion-wrapper', 'The ultimate showdown begins now.', 0],
+
+  // Expanded ai-vocab (study-validated rare words)
+  ['ai-vocab', 'The paper elucidates a nuanced, groundbreaking result.', 3],
+  ['ai-vocab', 'an unparalleled, transformative approach', 2],
+  ['ai-vocab', 'a myriad of versatile options', 2],
+  ['ai-vocab', 'They painted the fence on Saturday.', 0],
+
+  // Vague appeals to research
+  ['false-authority', 'Studies have shown this works.', 1],
+  ['false-authority', 'Research suggests a link.', 1],
+  ['false-authority', 'The data speaks for itself.', 1],
+  ['false-authority', 'She studies the ocean floor.', 0],
+
+  // Corporate buzzword pairings
+  ['corporate-buzzwords', 'a holistic approach with real synergy', 2],
+  ['corporate-buzzwords', 'our robust framework scales', 1],
+  ['corporate-buzzwords', 'They built a wooden frame.', 0],
+
+  // AI fiction clichés
+  ['fiction-slop', 'A shiver ran down her spine.', 1],
+  ['fiction-slop', 'He took a deep breath.', 1],
+  ['fiction-slop', 'Little did they know.', 1],
+  ['fiction-slop', 'The breathing exercise helped.', 0],
+
+  // Something for everyone
+  ['something-for-everyone', 'The festival has something for everyone.', 1],
+  ['something-for-everyone', 'Whether you are new or an expert, you will find value.', 1],
+  ['something-for-everyone', 'Everyone arrived on time.', 0],
+
+  // Cataphoric teaser (the "here's what nobody tells you" suspense hook)
+  ['cataphoric-teaser', "Here's the part that nobody tells you.", 1],
+  ['cataphoric-teaser', "Here's what most people get wrong.", 1],
+  ['cataphoric-teaser', 'The part most people sleep on is caching.', 1],
+  ['cataphoric-teaser', 'What nobody tells you is the real cost.', 1],
+  ['cataphoric-teaser', 'Here is your receipt.', 0],
+  ['cataphoric-teaser', 'The part number is 4032.', 0],
+  ['cataphoric-teaser', "It's not what you think.", 1],
+  ['cataphoric-teaser', 'It is not what I ordered.', 0],
+
+  // Superlative hook openers (Twitter-style engagement bait)
+  ['hook-opener', 'What I find most annoying about it is the delay.', 1],
+  ['hook-opener', 'The stupidest thing you could do is ignore it.', 1],
+  ['hook-opener', 'The most interesting thing to notice is the timing.', 1],
+  ['hook-opener', 'The worst mistake you can make is waiting.', 1],
+  ['hook-opener', 'The best way to cook pasta is to boil it.', 0],
+  ['hook-opener', 'The best part is the ending.', 0],
 ];
 
 describe('new signs (post-reference additions)', () => {

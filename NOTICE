@@ -28,3 +28,14 @@ from Wikipedia's "Signs of AI writing" guide, which is available under the
 Creative Commons Attribution-ShareAlike license:
 
     https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
+
+Some detectors were inspired by signals crowd-sourced from the community. The
+ideas are credited to their authors (the detector implementations are ours):
+
+    @yishan       - "cataphoric teaser" and "negative parallelism"
+                    https://x.com/yishan/status/2093268215853985869
+                    https://x.com/yishan/status/2093268324306284780
+    @landosembery - superlative hook openers
+                    https://x.com/landosembery/status/2093277440432828554
+    @petermajewski - cataphoric-teaser examples
+                    https://x.com/petermajewski/status/2093481467812688010

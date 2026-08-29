@@ -9,6 +9,110 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-08-29 — Cataphoric-teaser detector (from a @yishan thread)
+
+**Summary:** Added a `cataphoric-teaser` detector for the forward-referencing
+suspense hook that manufactures cheap curiosity — the LLM descendant of clickbait.
+51 → 52.
+
+**Why:** A @yishan thread (x.com/yishan/status/2093268215853985869) noted this
+"annoying tell of AI text" has a linguistic name — the *cataphoric teaser* — with
+examples ("Here's the part that nobody tells you…", "Here's what most people get
+wrong…", "The part most people sleep on…"). Confirmed our existing
+`heres-the-twist` / `thats-the-part` detectors did **not** catch these (fixed
+noun lists + required trailing punctuation), so it was a genuine gap.
+
+**What changed:**
+- `extension/src/patterns.js` — new `cataphoric-teaser` detector matching
+  "here's what/the … (that) nobody/most people/no one …", "the part/secret/… (that)
+  nobody/most people …", "what most people get wrong", "what nobody tells you",
+  "nobody talks about", "most people sleep on/miss/overlook".
+- `extension/tests/new-signs.test.js` (+6 cases); `tests/patterns.test.js` ADDED
+  set; README/count bumps.
+
+**How / commands run:**
+```
+# X blocks anonymous fetch (402 / Jina 403); pulled the tweet via the
+# fxtwitter + vxtwitter JSON APIs (no auth).
+npx vitest run             # 279 passed
+# ReDoS check: 2ms on 336k-char adversarial input (linear)
+npm run build              # dist/content.js 50.2kb
+aidc-scan                  # clean
+```
+
+**Verification:** All of yishan's examples match; negatives clean ("Here is your
+coffee", "The part number is 4032", "What most people ordered was pizza" → 0);
+does not fire on the reference EXAMPLE. 279/279 tests; build/scan clean.
+
+**Notes:** Overlaps slightly with `heres-the-twist`/`thats-the-part`; overlap
+dedup (first-by-start wins) keeps a single highlight per span.
+
+## 2026-08-29 — Research-backed detectors (phrases + validated vocabulary)
+
+**Summary:** Researched quantitative AI-word studies, open-source slop-detector
+codebases, and structural/statistical AI-text signals, then added the highest-
+precision, lowest-false-positive findings as new detectors. 41 → 47.
+
+**Why:** Requested — leverage internet research and existing codebases to improve
+the tool's ability to catch AI clichés/text.
+
+**What changed (`extension/src/patterns.js`):**
+- Six new phrase detectors (in the "Rhetorical tics" group): `chat-boilerplate`
+  (assistant pleasantries — "Certainly!", "I'd be happy to help", "feel free
+  to"), `scene-setting` ("in today's fast-paced world", "in the realm of", "when
+  it comes to"), `journey-metaphor` ("embark on a journey", "navigating the
+  complexities of", "pave the way", "unlock the potential", "shed light on"),
+  `dive-in` ("dive into", "deep dive", "let's explore"), `hype-buzzwords`
+  ("game-changer", "cutting-edge", "paradigm shift", …), and `conclusion-wrapper`
+  (sentence-initial "In conclusion / In summary / Ultimately,").
+- `ai-vocab` extended with study-validated rare, high-precision words: elucidate,
+  delineate, juxtapose, streamline, catalyze, transcend, unveil, illuminate,
+  spearhead, exemplify, encapsulate, propel, burgeoning, noteworthy,
+  groundbreaking, unparalleled, transformative, nuanced, renowned, invaluable,
+  versatile, myriad, prowess.
+- `extension/tests/new-signs.test.js` — +30 positive/negative cases;
+  `tests/patterns.test.js` — EXAMPLE-invariant ADDED set updated; README counts.
+
+**How / commands run:**
+```
+# three parallel research agents: (1) quantitative word-frequency studies
+# (Kobak et al. Science Advances 2025; Liang et al. ICML 2024), (2) OSS slop
+# detectors (slop-gate, proselint, write-good, SlopDetector tiers), (3)
+# structural/statistical signals (burstiness, em-dash density, MATTR).
+npx vitest run --coverage   # 259 passed; logic modules 96.55% lines
+# ReDoS spot-check: new detectors ~1-3ms on 336k-char adversarial input (linear)
+npm run build               # dist/content.js 46.3kb
+aidc-scan                   # clean
+```
+
+**Errors encountered & resolution:** None. Deliberately EXCLUDED the studies'
+high-frequency common words (potential, crucial, additionally, significant,
+comprehensive, notably) — they carry the largest raw excess but over-trigger on
+normal writing; the research is emphatic that those only signal in aggregate, not
+per-hit. Only rare, high-precision items were added.
+
+**Verification:** 259/259 tests; every new detector spot-checked for positives
+and negatives (e.g. "He absolutely nailed it", "the ultimate frisbee match",
+"the pelican dove into the sea" do not match). `aidc-scan` clean; build loadable.
+
+**Follow-up (same day):** After review, added four more high-precision phrase
+detectors — `false-authority` ("studies have shown", "research suggests", "the
+data speaks for itself"), `corporate-buzzwords` ("holistic approach", "seamless
+integration", "synergy"), `fiction-slop` ("a shiver ran down her spine", "took a
+deep breath", "little did they know"), and `something-for-everyone`. 47 → 51.
+Tests 259 → 273; build/scan clean.
+
+**Notes / follow-ups:** The biggest remaining capability leap identified by the
+research is a **document-level statistical layer** — sentence-length burstiness
+(CV), em-dash density per 1k words, transition-opener ratio, bold-lead-in-list
+ratio, and a Unicode-typography co-occurrence check — surfaced as a convergence-
+based "AI-likelihood" score rather than per-span highlights. Per the user's
+decision it is **deferred and documented** as future work in
+`extension/docs/FUTURE_WORK.md` (with formulas, thresholds, the convergence/min-
+size caveats, and a suggested implementation shape). All signals are O(n) and
+model-free but belong behind an explicit score UI to avoid over-flagging
+non-native/formal writers.
+
 ## 2026-08-28 — Project README, GPL-3.0 license, and attribution
 
 **Summary:** Added a GitHub-style repo `README.md`, a `LICENSE` (GNU GPL v3.0),
