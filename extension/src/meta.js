@@ -9,11 +9,17 @@
 //
 // `group` is derived from patterns.js (Wikipedia entries carry a `group` field);
 // it drives both the popup grouping and the highlight colour.
+//
+// A third source sits alongside Wikipedia and the reference tool: SlopDetector's
+// "Signs of AI writing" research (measured thresholds per pattern). The page is
+// client-rendered with no stable per-section anchors, so those patterns link to
+// the article itself.
 
 import { patterns, patternsById } from './patterns.js';
 
 const WIKI_URL = 'https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing';
 const TOOL_URL = 'https://tools.simonwillison.net/llm-cliche-highlighter';
+const SLOP_URL = 'https://slopdetector.org/blog/signs-of-ai-writing';
 
 const wikiSection = (anchor) => WIKI_URL + '#' + anchor;
 
@@ -37,9 +43,21 @@ const WIKI_ANCHORS = {
   'canned-notability': 'Canned_emphasis_on_notability,_attribution,_and_media_coverage',
 };
 
+// SlopDetector-researched patterns (see the comment up top), keyed by pattern
+// id. WIKI_ANCHORS above wins where it has an entry — a deep section link beats
+// the article root — so only patterns whose best source is SlopDetector's
+// research are listed here.
+const SLOP_PATTERNS = new Set([
+  'verb-inflation',
+  'hedge-stack',
+  'pseudo-wisdom',
+  'scene-setting',
+]);
+
 // Resolve the "read more" URL for a pattern id.
 export function moreUrlFor(id) {
   if (WIKI_ANCHORS[id]) return wikiSection(WIKI_ANCHORS[id]);
+  if (SLOP_PATTERNS.has(id)) return SLOP_URL;
   const p = patternsById[id];
   return p && p.group ? WIKI_URL : TOOL_URL;
 }

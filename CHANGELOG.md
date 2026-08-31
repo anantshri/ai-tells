@@ -22,6 +22,18 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Added
 
+- AI Tells: three new SlopDetector-researched detectors — **corporate verb
+  inflation** ("utilize", "facilitate", "in order to", "prior to"…),
+  **hedge stacking** ("it could be argued that", "may potentially",
+  "there is no one-size-fits-all"…), and **pseudo-wisdom filler** ("the key is
+  to find the right balance", "context is everything"…) — 56 detectors total.
+  Read-more links point at the SlopDetector research; NOTICE/README credit it
+  directly (surfaced via the AI-Writing-Rules curation). 366 tests.
+- AI Tells: extended five detectors with researched phrases — scene-setting
+  ("picture this", "now more than ever", "it's no secret"…), despite-challenges
+  ("moving forward", "as we look ahead", "future prospects"), copulative
+  avoidance ("represents a significant…", "marks a pivotal…"), journey-metaphor
+  ("sets the stage", "underscores the importance of").
 - AI Tells: **document-level page grading**. Alongside the per-phrase
   highlighter, a scan now computes a model-free stylometric grade from eight
   independent signals (sentence-length burstiness, em-dash density, transition

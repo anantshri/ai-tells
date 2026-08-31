@@ -8,17 +8,20 @@ guide. Hover a highlight to see which signal was picked and a link to read more.
 
 ## What it does
 
-- **53 detectors** in two groups — "Rhetorical tics" (yellow) and "Signs of AI
+- **56 detectors** in two groups — "Rhetorical tics" (yellow) and "Signs of AI
   writing (Wikipedia)" (blue). The core engine is ported **verbatim** from the
-  reference tool (38 detectors); 15 more were added on top — three
+  reference tool (38 detectors); 18 more were added on top — three
   Wikipedia-guide signs (copulative avoidance, vague association, canned
-  notability) and twelve research-/community-sourced phrase detectors (chatbot
+  notability) and fifteen research-/community-sourced phrase detectors (chatbot
   pleasantries, scene-setting openers, journey metaphors, "dive into", hype
   buzzwords, formulaic conclusions, vague appeals to research, corporate
   buzzwords, AI fiction clichés, "something for everyone", the cataphoric teaser,
-  and superlative hook openers) — and the vocabulary/chatbot-leftover detectors
+  superlative hook openers, corporate verb inflation, hedge stacking, and
+  pseudo-wisdom filler) — and the vocabulary/chatbot-leftover detectors
   were extended with
-  study-validated words and newer markup artifacts.
+  study-validated words and newer markup artifacts. Detector extensions from
+  SlopDetector's thresholded pattern research are noted in
+  [`../NOTICE`](../NOTICE).
   A document-level statistical scoring layer is planned; see
   [`docs/FUTURE_WORK.md`](docs/FUTURE_WORK.md).
 - **No DOM mutation.** Highlights are painted with the
@@ -47,7 +50,7 @@ back onto a DOM `Range` (which may span nodes). `src/content.js` paints those
 ranges and resolves hovers via caret hit-testing back through the buffer map.
 
 ```
-src/patterns.js   detector engine (53 patterns + factories + dedup); 38 ported verbatim
+src/patterns.js   detector engine (56 patterns + factories + dedup); 38 ported verbatim
 src/meta.js       per-pattern group + "read more" URL
 src/detect.js     DOM <-> buffer bridge, match -> Range mapping, hover lookup
 src/content.js    highlight painting, interactive tooltip, MutationObserver

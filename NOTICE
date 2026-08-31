@@ -29,6 +29,17 @@ Creative Commons Attribution-ShareAlike license:
 
     https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
 
+Some detectors and detector extensions are derived from SlopDetector's
+"Signs of AI Writing: 12 Patterns With Reproducible Thresholds" research
+(verb inflation, hedge stacking, pseudo-wisdom filler, and added phrases in
+the scene-setting, challenges-and-outlook, copulative-avoidance, and
+journey-metaphor detectors). We became aware of this research via the
+MIT-licensed AI-Writing-Rules project
+(https://github.com/Abdulkader-Safi/AI-Writing-Rules), which curates it; the
+underlying pattern research is SlopDetector's:
+
+    https://slopdetector.org/blog/signs-of-ai-writing
+
 Some detectors were inspired by signals crowd-sourced from the community. The
 ideas are credited to their authors (the detector implementations are ours):
 

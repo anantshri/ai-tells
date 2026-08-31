@@ -9,6 +9,98 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-08-31 — SlopDetector-researched detectors (verb inflation, hedge stacking, pseudo-wisdom) + 5 detector extensions
+
+**Summary:** Mined the pattern research behind
+[AI-Writing-Rules](https://github.com/Abdulkader-Safi/AI-Writing-Rules) (an
+MIT Claude Code plugin) for anything our engine lacked, and ported the genuine
+gaps: three new detectors and added phrases across five existing ones. Pattern
+research credited directly to its primary source — SlopDetector's
+[12 measured patterns](https://slopdetector.org/blog/signs-of-ai-writing) —
+with AI-Writing-Rules acknowledged as the curation we discovered it through.
+53 → 56 detectors; 315 → 366 tests.
+
+**Why:** Their 17 regex + 3 statistical rules overlap ours heavily (negative
+parallelism, AI vocab, testament/role/landscape, vague attribution, outline
+endings, participle tails, chat scaffolding, model artifacts, burstiness /
+transition-stacking / rule-of-three — the latter three already in `stats.js`
+with five more signals they lack). Diffed against our 53, three pattern
+families had no coverage at all: Latinate verb swaps, stacked hedges, and
+unfalsifiable wisdom sentences. Two of their noisy markdown rules (per-span
+em-dash / curly-quote flagging) were deliberately NOT taken — they lint
+Claude's own output where smart quotes are always a tell, but we judge live
+web pages where CMSes auto-curl quotes and em-dashes are legitimate typography;
+our doc-level `typography` cluster signal in `stats.js` is the right altitude.
+
+**What changed:**
+- `src/patterns.js` — three new detectors (Rhetorical tics group):
+  - `verb-inflation` — Latinate swaps ("utilize", "facilitate", "commence",
+    "ascertain", "endeavor") + connective padding ("in order to", "prior to",
+    "subsequent to", "in the event that", "with regard to", "a number of",
+    "the vast majority of"). Deliberately excludes "implement", "optimize",
+    "terminate", "demonstrate" — literal vocabulary on technical pages, and
+    over-matching them is the fastest way to make the extension feel noisy.
+  - `hedge-stack` — "it could be argued that", "one could argue", "some might
+    say", "may potentially", "can sometimes be", "to some extent", "generally
+    speaking", "in certain contexts", "no one-size-fits-all". Common
+    softeners ("tends to", bare "arguably") deliberately excluded — one hedge
+    is honest writing; the tell is stacking.
+  - `pseudo-wisdom` — "the key is to find the right balance", "true X comes
+    from within", "context is everything", "the best approach is the one that
+    works for you", "it comes down to your specific needs", "success comes
+    down to…".
+- `src/patterns.js` — extended detectors:
+  - `scene-setting` += "in an era of", "in the digital age", sentence-initial
+    "picture this" (anchored `(?:^|[.!?]\s+)` after a test caught "The picture
+    this frame captures" as an FP), "imagine a world where", "it's no secret",
+    "let's face it", "now more than ever", "as technology continues to".
+  - `despite-challenges` += "moving forward", "as we look ahead", "challenges
+    and (future) opportunities/prospects", "future outlook/prospects", "it's
+    important to note".
+  - `copulative-avoidance` += "represents a significant/key/pivotal…
+    milestone/step/shift…", "marks a significant/key/pivotal…".
+  - `journey-metaphor` += "set(s)/setting the stage", "underscores the
+    importance of".
+- `src/meta.js` — `SLOP_PATTERNS` set routes the read-more link for the three
+  new detectors + `scene-setting` to the SlopDetector article (the page is
+  client-rendered, no stable anchors — root URL, consistent with our
+  anchor-drift fallback behaviour). `WIKI_ANCHORS` keeps precedence:
+  `despite-challenges` stays deep-linked to Wikipedia's "Outline-like
+  conclusions" section, which genuinely covers the added phrases.
+- `NOTICE` / `README.md` — SlopDetector credited as the pattern-research
+  source; AI-Writing-Rules noted as the curation vector. Detector counts
+  53 → 56, test badge 287 → 365.
+- Tests: `new-signs.test.js` +50 cases (positives, negatives, FP-guards incl.
+  the deliberate-exclusion checks: "terminate()" and "demonstrated" must NOT
+  trip verb-inflation); `patterns.test.js` ADDED-set updated for the three new
+  ids; `meta.test.js` +1 SlopDetector-link case.
+
+**How / commands run:**
+```
+npm test                    # 366 passed
+npx vitest run --coverage   # patterns 86/91/85/90; meta 100/94/100/100
+npm run build               # dist/{chrome,firefox,safari}
+aidc-scan                   # semgrep + gitleaks clean
+```
+
+**Verification:** 366 tests passing, build OK across
+all three targets, scan clean. FP guard verified live: "The picture this frame
+captures is sharp." initially matched bare `picture\s+this` — caught by its
+negative test case, fixed with the sentence-start anchor, regression-tested.
+The deliberate-exclusion boundaries (terminate/demonstrate/optimize/
+implement; tends to/arguably) are pinned by explicit 0-expectation cases.
+
+**Notes:** Attribution chain decided with the user: credit SlopDetector and
+Wikipedia directly (they're the primary researchers and our read-more links
+target them); AI-Writing-Rules gets an honest mention in NOTICE as the
+curation we found the research through, not as the pattern author. Their
+"empty openers" / "vague attribution" extensions folded into existing
+detectors rather than new ones to avoid duplicate firing on the same span.
+Candidate NOT taken: per-span em-dash/curly-quote flags (too noisy for
+arbitrary web pages, wrong altitude — handled at doc level in stats.js).
+
+---
+
 ## 2026-08-29 — Document-level page grading + graded toolbar icon
 
 **Summary:** Implemented the deferred document-level "AI-likelihood" scorer from
