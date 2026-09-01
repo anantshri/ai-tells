@@ -25,9 +25,11 @@ const TRANSITION_RATIO = 0.10;     // sentences opening with a transition adverb
 const EXPLETIVE_RATIO = 0.10;      // sentences opening "It is / There are / This is"
 const TRIAD_PER_1K = 5;            // rule-of-three triads per 1k words (>1 per 200)
 const BOLD_LEAD_RATIO = 0.5;       // list items led by <strong>/<b>
+const ANTITHESIS_PER_1K = 5;       // negative-parallelism constructions per 1k words
 const MIN_PARAGRAPHS = 4;          // paragraph-uniformity needs a few paragraphs
 const MIN_LIST_ITEMS = 3;          // bold-lead-list needs a few items
 const MIN_TRIADS = 2;              // a lone triad is ordinary prose
+const MIN_ANTITHESIS = 3;          // one or two is ordinary prose; density is the tell
 
 // Tier is a function of how many signals co-fire — convergence, not any one.
 const TIER_COLOR = { low: '#16A34A', some: '#CA8A04', elevated: '#EA580C', high: '#DC2626' };
@@ -82,6 +84,34 @@ const TRANSITION_WORDS = new Set([
 const EXPLETIVE_OPENER = /^(?:it(?:['’]s|\s+is|\s+was)|there(?:['’]s|\s+is|\s+are|\s+was|\s+were)|this\s+is|these\s+are|that\s+is)\b/i;
 
 const TRIAD = /\b[\w'’-]+(?:\s+[\w'’-]+){0,2},\s+[\w'’-]+(?:\s+[\w'’-]+){0,2},\s+and\s+[\w'’-]+(?:\s+[\w'’-]+){0,2}/gi;
+
+// Negative parallelism / antithesis — the "not X but Y", "it isn't X, it's Y",
+// and "X, not Y" contrast constructions LLM prose leans on for punchy reframes.
+// The reframe patterns are subject-agnostic on the left (so "The threat isn't
+// one read, it's the ratios" counts, which the phrase-level not-just detector
+// deliberately doesn't). "instead of" / "rather than" are intentionally left
+// out: too common in ordinary prose to survive as a signal. Model-free, O(n).
+const ANTITHESIS_PATTERNS = [
+  /\bnot\s+(?:just|only|merely|simply)\b[^.!?\n;]{1,80}?\bbut\b/gi,
+  /\b(?:is|are|was|were)n['’]t\b[^.!?\n;]{1,60}?[,;—–]\s*(?:it|this|that|they|these|those)(?:['’]s|\s+(?:is|are|was|were))\b/gi,
+  /\b(?:is|are|was|were)\s+not\b[^.!?\n;]{1,60}?[,;—–]\s*(?:it|this|that|they|these|those)(?:['’]s|\s+(?:is|are|was|were))\b/gi,
+  /,\s+not\s+(?:a|an|the|just|only|merely|simply|his|her|its|their|your|my|our)\b/gi,
+];
+
+// Count distinct (non-overlapping) antithesis constructions in the text.
+function countAntithesis(text) {
+  const spans = [];
+  for (const re of ANTITHESIS_PATTERNS) {
+    for (const m of text.matchAll(re)) spans.push([m.index, m.index + m[0].length]);
+  }
+  spans.sort((a, b) => a[0] - b[0]);
+  let count = 0;
+  let prevEnd = -1;
+  for (const [s, e] of spans) {
+    if (s >= prevEnd) { count += 1; prevEnd = e; }
+  }
+  return count;
+}
 
 // ---- individual signals ------------------------------------------------
 // Each returns { key, label, applicable, fired, value, display }.
@@ -161,6 +191,17 @@ function signalRuleOfThree(text, wordCount) {
   };
 }
 
+function signalAntithesis(text, wordCount) {
+  const count = countAntithesis(text);
+  const per1k = wordCount ? (count / wordCount) * 1000 : 0;
+  return {
+    key: 'antithesis', label: 'Antithesis / negative parallelism', applicable: true,
+    fired: count >= MIN_ANTITHESIS && per1k > ANTITHESIS_PER_1K,
+    value: per1k,
+    display: `${count} construction${count === 1 ? '' : 's'} (${per1k.toFixed(1)} per 1k; AI > ${ANTITHESIS_PER_1K})`,
+  };
+}
+
 function signalTypography(text) {
   const curly = /[“”‘’]/.test(text);
   const ellipsis = text.includes('…') || text.includes('...');
@@ -223,6 +264,7 @@ export function gradePage(buffer, doc) {
     signalTransitionOpeners(sentences),
     signalExpletiveOpeners(sentences),
     signalRuleOfThree(text, wordCount),
+    signalAntithesis(text, wordCount),
     signalTypography(text),
     signalBoldLeadList(doc),
   ];

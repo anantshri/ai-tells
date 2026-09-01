@@ -9,6 +9,95 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-09-01 — Detector gaps found via a real sample (contracted reframe, ai-vocab hyphen guard, antithesis-density signal)
+
+**Summary:** Investigated a GitHub issue
+([momo5502/sogen#1315](https://github.com/momo5502/sogen/issues/1315)) a user
+suspected was AI-written but the tool scored clean. Running both engine layers
+over the verbatim body (543 words) confirmed the miss and pinpointed three
+defects. Fixed two phrase-detector bugs and added a ninth page-grading signal.
+366 → 375 tests. No behavioural regressions.
+
+**Why:** The text is "competent slop" — it dodges the vocabulary clichés and
+leans on *structural* tells instead. Diagnosis, corroborated by a friend's
+independent run of the tool on `main` (`chatlog.txt` in the repo root):
+
+1. `not-just` (patterns.js) matched "it's not X, it's Y" but not the contracted
+   "it **isn't** X, it's Y" — the sample's backbone construction. A contraction
+   technicality, not a design choice.
+2. `ai-vocab` fired on "leverage" inside "the highest-**leverage** single
+   change" — a hyphenated noun modifier, ordinary engineering English. `\b`
+   treats a hyphen as a boundary, so the LLM-verb list matched inside compounds.
+   This was the *only* phrase hit a default-settings user would have seen on the
+   705-word sample, and it was a false positive.
+3. No document-level detector for antithesis density — the reframe habit
+   ("not X but Y", "it isn't X, it's Y", "X, not Y") that recurs ~1 per 90 words
+   in the sample. `stats.js` had burstiness and rule-of-three but not this.
+
+A **fourth** idea from the first-pass diagnosis — counting ASCII `--` as an
+em-dash so `signalEmDash` fires — was **retracted**. The friend's run pointed
+out that `--` (vs typographic `—`) is one of the strongest *human* signals:
+LLMs emit `—`. Folding `--` into em-dash density would invert the signal's
+meaning. Documented the reasoning in `docs/FUTURE_WORK.md` so it doesn't
+resurface.
+
+**What changed:**
+
+- `extension/src/patterns.js`
+  - `not-just` (id): extended the middle reframe alternative to accept a
+    contracted copula — `(?:it|this|that)(?:(?:'s|\s+(?:is|was))\s+not|\s+(?:is|are|was|were)n't)\s+…`.
+    Deliberately kept subject-restricted to it/this/that (so the phrase-level
+    highlight stays tight); the subject-agnostic form is handled by the new
+    stats signal instead.
+  - `ai-vocab` (id): replaced the wrapping `\b…\b` with `(?<![\w-])…(?![\w-])`
+    so a vocab word inside a hyphenated compound ("highest-leverage",
+    "leverage-based") no longer matches. Standalone words and the list's own
+    hyphenated entry "ever-evolving" still match.
+- `extension/src/stats.js`
+  - New `signalAntithesis` (key `antithesis`) + `ANTITHESIS_PATTERNS` /
+    `countAntithesis`. Counts non-overlapping "not just X but Y", contracted and
+    spelled-out "isn't/is not X, it's Y" reframes (subject-agnostic on the left),
+    and "X, not <determiner> Y". Fires at ≥3 constructions **and** >5 per 1k
+    words. "instead of" / "rather than" intentionally excluded — too common in
+    ordinary prose to survive as a signal. Added to the `gradePage` signals
+    array (now 9 signals; `tierOf` thresholds unchanged).
+
+**Commands:**
+
+```
+# diagnosis
+node scan.mjs        # phrase engine: 4 weak hits (one, ai-vocab "leverage", an FP)
+node grade.mjs       # doc grader: 0/8 fired, tier Low
+# after fixes
+npx vitest run --coverage    # 375 passed; stats.js 100% lines, patterns.js changed lines covered
+aidc-scan                    # semgrep + gitleaks clean; rest skipped (no matching files)
+```
+
+**Verification:**
+
+- `not-just`: "It isn't perfection, it's coherence." → 1; "It isn't ready yet."
+  → 0 (no reframe pivot); existing "It's not a bug — it's a feature." still 1.
+- `ai-vocab`: "highest-leverage" / "leverage-based" → 0; "We leverage the
+  platform to enhance results." → 2; "ever-evolving landscape" → 1 (unchanged).
+- `antithesis`: fires on a 151-word negative-parallelism fixture (6 constructions,
+  39.7/1k); silent on the human control; a lone "…a marathon, not a sprint."
+  stays unfired (density floor). On the sogen sample it fires (3 constructions,
+  5.5/1k) but the document stays **Low** (firedCount 1) — convergence correctly
+  declines to convict, matching the manual read that the text leans human.
+
+**Notes:**
+
+- The engine reporting "clean" on this text is not evidence it's human — it means
+  the text dodged the catalogued phrases. The manual read (and the friend's) put
+  it at ~25% odds of meaningful AI involvement, i.e. probably human but mannered.
+  These fixes improve what a *better* detector can see; they are not an accusation
+  about this specific author.
+- `chatlog.txt` (repo root, untracked) came from another environment on `main`;
+  its detector counts (53/48) and line numbers predate this branch. Kept for
+  reference, not treated as authoritative for `page-grade`.
+
+---
+
 ## 2026-08-31 — SlopDetector-researched detectors (verb inflation, hedge stacking, pseudo-wisdom) + 5 detector extensions
 
 **Summary:** Mined the pattern research behind

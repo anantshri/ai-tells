@@ -19,9 +19,21 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
   "Negative parallelisms") also catches the trailing "X is A, not B" antithesis
   — the "…is a hypothesis, not a control" closing kicker LLMs favour. Previously
   only the "not just X, but Y" and "it's not X — it's Y" orderings were caught.
+- AI Tells: `not-just` now also catches the **contracted** reframe — "it isn't
+  X, it's Y" — which previously escaped on the contraction alone (only the
+  spelled-out "it's not X, it's Y" was caught).
+- AI Tells: the `ai-vocab` vocabulary detector no longer fires inside
+  **hyphenated compounds** — "highest-leverage", "leverage-based" and friends
+  are ordinary engineering English, not the LLM verb, and were false positives.
 
 ### Added
 
+- AI Tells: a ninth page-grading signal — **antithesis / negative-parallelism
+  density**. The document grade now counts "not just X but Y", "it isn't X,
+  it's Y", and "X, not Y" constructions and flags them when they cluster
+  (≥3 and >5 per 1k words), catching the structural reframe habit that the
+  per-phrase `not-just` detector can't see across a whole document. Convergence
+  still governs the verdict, so a lone antithesis-heavy passage stays "Low".
 - AI Tells: three new SlopDetector-researched detectors — **corporate verb
   inflation** ("utilize", "facilitate", "in order to", "prior to"…),
   **hedge stacking** ("it could be argued that", "may potentially",

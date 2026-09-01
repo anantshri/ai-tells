@@ -136,11 +136,21 @@ export const patternCases = [
   ['ai-vocab', 'Her vibrant tapestry hung in the bustling hall.', 3],
   ['ai-vocab', 'A meticulously curated, seamless experience.', 2],
   ['ai-vocab', 'The report was thorough and well organized.', 0],
+  // Hyphen guard: vocab words inside a hyphenated compound are ordinary
+  // engineering English, not the LLM verb — "highest-leverage" must not fire.
+  ['ai-vocab', 'the highest-leverage single change', 0],
+  ['ai-vocab', 'a leverage-based pricing model', 0],
+  ['ai-vocab', 'We leverage the platform to enhance results.', 2],
   ['not-just', 'This is not just a tool, but a philosophy.', 1],
   ['not-just', 'Not only fast but also reliable.', 1],
   ['not-just', 'It’s not a bug — it’s a feature.', 1],
   ['not-just', 'He did not buy it.', 0],
   ['not-just', 'She was not sure about the plan.', 0],
+  // Contracted reframe: "it isn't X, it's Y" — the same negative parallelism as
+  // "it's not X, it's Y", which used to escape on the contraction alone.
+  ['not-just', "It isn't perfection, it's coherence.", 1],
+  ['not-just', "This isn't a rewrite, it's a rescue.", 1],
+  ['not-just', "It isn't ready yet.", 0],
   // Trailing "X is A, not B" antithesis — the closing-kicker form.
   ['not-just', 'A rule that has not survived a bypass attempt is a hypothesis, not a control.', 1],
   ['not-just', 'This is a marathon, not a sprint.', 1],

@@ -29,6 +29,10 @@ It wasn't. By noon the rain came back. We gave up, sat under the porch, and watc
 
 I will finish the fence next weekend. Or maybe I won't. Either way the dog does not care one bit, and honestly neither do I when the coffee is good and the company is better. My neighbour left around three, still grumbling about the concrete, and I stayed out there a while longer just listening to the rain hammer the tin roof of the shed.`;
 
+// A passage built on negative parallelism — "it isn't X, it's Y", "not just A
+// but B", "X, not Y" — the antithesis density signal should fire on this.
+const ANTITHESIS_TEXT = `We did not set out to rewrite the whole system this quarter. It isn't perfection we are chasing, it's coherence across every moving part that finally matters. The real problem isn't one slow query, it's the pattern of small delays that stack up over an ordinary day. We measured the latency twice before anyone touched the code. This isn't a rewrite of the engine, it's a careful rescue of the parts that still earn their keep. The team argued about scope for the better part of a week. Not just the backend but the whole client had to change before the launch could ship. What we shipped in the end was a tool, not a toy, and the customers noticed the difference right away. We kept the first design only as a quiet fallback. The lesson here is a practice, not a slogan, and the team repeated it often that year.`;
+
 describe('text helpers', () => {
   test('words tokenises on letters/digits', () => {
     expect(words('Two rules, one bug.')).toEqual(['Two', 'rules', 'one', 'bug']);
@@ -165,6 +169,31 @@ describe('bold-lead-in list signal (DOM)', () => {
     const bold = gradePage(HUMAN_TEXT, doc).signals.find((s) => s.key === 'bold-list');
     expect(bold.applicable).toBe(false);
     expect(bold.fired).toBe(false);
+  });
+});
+
+describe('antithesis / negative-parallelism signal', () => {
+  test('fires on dense negative parallelism', () => {
+    const g = gradePage(ANTITHESIS_TEXT, null);
+    const anti = g.signals.find((s) => s.key === 'antithesis');
+    expect(anti.applicable).toBe(true);
+    expect(anti.fired).toBe(true);
+    expect(anti.value).toBeGreaterThan(5);
+    expect(anti.display).toMatch(/construction/);
+  });
+
+  test('stays quiet on ordinary human prose', () => {
+    const g = gradePage(HUMAN_TEXT, null);
+    const anti = g.signals.find((s) => s.key === 'antithesis');
+    expect(anti.applicable).toBe(true);
+    expect(anti.fired).toBe(false);
+  });
+
+  test('a lone construction does not fire (density, not presence)', () => {
+    const g = gradePage(`${HUMAN_TEXT} It is a marathon, not a sprint.`, null);
+    const anti = g.signals.find((s) => s.key === 'antithesis');
+    expect(anti.display).toMatch(/^1 construction\b/);
+    expect(anti.fired).toBe(false); // below the MIN_ANTITHESIS floor
   });
 });
 

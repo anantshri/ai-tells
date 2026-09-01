@@ -9,10 +9,19 @@ document-level grade during each scan, the toolbar badge shows the co-firing
 signal count tinted by tier, and the popup has an Analysis panel with the
 per-signal breakdown and caveat. Implemented signals: sentence-length
 burstiness, paragraph-length uniformity, em-dash density, transition openers,
-expletive openers, rule-of-three density, unicode-typography cluster, and the
-DOM bold-lead-in-list ratio. **Still deferred** (kept out of the first cut to
-stay high-precision): lexical diversity (MATTR), nominalization↑/adverb↓, and
-punctuation-variety poverty — see the table below.
+expletive openers, rule-of-three density, unicode-typography cluster, the
+DOM bold-lead-in-list ratio, and (2026-09-01) **antithesis / negative-parallelism
+density**. **Still deferred** (kept out to stay high-precision): lexical
+diversity (MATTR), nominalization↑/adverb↓, and punctuation-variety poverty —
+see the table below.
+
+> **Note on em-dash density (2026-09-01):** `signalEmDash` counts only the
+> typographic em-dash `—` (U+2014), deliberately *not* the ASCII `--` double
+> hyphen. A friend's run of the tool on plain-text `--`-heavy prose was a useful
+> reminder why: LLMs overwhelmingly emit `—`, while someone typing in a plain
+> editor produces `--`, so a high `--` rate leans *human*, not AI. Folding `--`
+> into the em-dash signal would invert its meaning. If `--` ever becomes a
+> signal it belongs as its own (toward-human) feature, tracked separately.
 
 The current tool is a **per-span highlighter** — it flags specific words/phrases.
 The complementary capability is a **document-level "AI-likelihood" score**
