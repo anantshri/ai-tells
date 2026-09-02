@@ -343,14 +343,14 @@ const patterns = [
   {
     id: 'scene-setting',
     name: '“In today’s fast-paced world”',
-    description: 'Throat-clearing openers that set an epochal scene: “in today’s fast-paced / digital / ever-changing world”, “in a world where”, “in the realm of”, “when it comes to”.',
-    find: makeRegexFinder(/\bin\s+(?:today['’]s|a|the|this|our)\s+(?:fast-paced|ever-(?:changing|evolving)|rapidly\s+(?:changing|evolving)|digital|modern|competitive|hyper-connected)\s+(?:world|age|era|landscape|society|market|economy)\b|\bin\s+a\s+world\s+where\b|\bin\s+the\s+realm\s+of\b|\bwhen\s+it\s+comes\s+to\b/gi)
+    description: 'Throat-clearing openers that set an epochal scene: “in today’s fast-paced / digital / ever-changing world”, “in a world where”, “in the realm of”, “when it comes to”, “in an era of”, “in the digital age” — plus the engagement warm-ups “picture this”, “imagine a world where”, “it’s no secret that”, “let’s face it”, “now more than ever”, and “as technology continues to…”.',
+    find: makeRegexFinder(/\bin\s+(?:today['’]s|a|the|this|our)\s+(?:fast-paced|ever-(?:changing|evolving)|rapidly\s+(?:changing|evolving)|digital|modern|competitive|hyper-connected)\s+(?:world|age|era|landscape|society|market|economy)\b|\bin\s+a\s+world\s+where\b|\bin\s+the\s+realm\s+of\b|\bwhen\s+it\s+comes\s+to\b|\bin\s+an?\s+era\s+of\b|\bin\s+the\s+digital\s+age\b|(?:^|[.!?]\s+)picture\s+this\b|\bimagine\s+a\s+world\s+(?:where|in)\b|\bit['’]s\s+no\s+secret\b|\blet['’]s\s+face\s+it\b|\bnow\s+more\s+than\s+ever\b|\bas\s+technology\s+continues\b/gi)
   },
   {
     id: 'journey-metaphor',
     name: 'Journey & discovery metaphors',
-    description: 'Grand exploration imagery: “embark on a journey”, “navigating the complexities of”, “pave the way”, “unlock the potential/secrets”, “shed light on”, “at the forefront of”, “a beacon of”, “treasure trove”.',
-    find: makeRegexFinder(/\bembark(?:ing|ed)?\s+on\s+(?:a|an|this)\s+(?:journey|adventure|quest|exploration|voyage)\b|\bnavigat(?:e|es|ing|ed)\s+the\s+(?:complex\w*|landscape|world|challenges|intricacies|maze|nuances)\b|\bpav(?:e|es|ed|ing)\s+the\s+way\b|\bunlock(?:s|ing|ed)?\s+the\s+(?:power|potential|secret|secrets|key)\b|\bshed(?:ding)?\s+light\s+on\b|\bat\s+the\s+forefront\s+of\b|\ba\s+beacon\s+of\b|\btreasure\s+trove\b/gi)
+    description: 'Grand exploration imagery: “embark on a journey”, “navigating the complexities of”, “pave the way”, “unlock the potential/secrets”, “shed light on”, “at the forefront of”, “a beacon of”, “treasure trove” — plus the stage-managed “setting the stage for” and the significance-inflating “underscores the importance of”.',
+    find: makeRegexFinder(/\bembark(?:ing|ed)?\s+on\s+(?:a|an|this)\s+(?:journey|adventure|quest|exploration|voyage)\b|\bnavigat(?:e|es|ing|ed)\s+the\s+(?:complex\w*|landscape|world|challenges|intricacies|maze|nuances)\b|\bpav(?:e|es|ed|ing)\s+the\s+way\b|\bset(?:s|ting)\s+the\s+stage\b|\bunlock(?:s|ing|ed)?\s+the\s+(?:power|potential|secret|secrets|key)\b|\bshed(?:ding)?\s+light\s+on\b|\bat\s+the\s+forefront\s+of\b|\ba\s+beacon\s+of\b|\btreasure\s+trove\b|\bunderscor(?:e|es|ed|ing)\s+the\s+importance\s+of\b/gi)
   },
   {
     id: 'dive-in',
@@ -407,18 +407,36 @@ const patterns = [
     find: makeRegexFinder(/\bsomething\s+for\s+everyone\b|\bwhether\s+you(?:['’]re|\s+are)\s+[^.!?\n]{1,50}?,\s*(?:there['’]s|you['’]ll\s+find|you\s+will\s+find)\b/gi)
   },
   {
+    id: 'verb-inflation',
+    name: 'Corporate verb inflation',
+    description: 'Plain verbs swapped for Latinate formalities — “utilize”, “facilitate”, “commence”, “ascertain”, “endeavor”, “initiate” — plus connective padding like “in order to”, “prior to”, “subsequent to”, “a number of”, “the vast majority of”. One hit is a register choice; the measured tell is density (>1 per 300 words). Deliberately excludes “implement”, “optimize”, “terminate”, “demonstrate”, which are literal vocabulary on technical pages.',
+    find: makeRegexFinder(/\b(?:utiliz(?:e|es|ed|ing)|facilitat(?:e|es|ed|ing)|commenc(?:e|es|ed|ing)|initiat(?:e|es|ed|ing)|ascertain(?:s|ed|ing)?|endeavou?r(?:s|ed|ing)?|in\s+order\s+to|prior\s+to|subsequent\s+to|in\s+the\s+event\s+that|with\s+regard(?:s)?\s+to|a\s+number\s+of|the\s+vast\s+majority\s+of)\b/gi)
+  },
+  {
+    id: 'hedge-stack',
+    name: 'Hedge stacking',
+    description: 'Unfalsifiable qualifier phrases — “it could be argued that”, “may potentially”, “can sometimes be”, “to some extent”, “generally speaking”, “in certain contexts”, “there is no one-size-fits-all”. One hedge is honest writing; a stack of them drains the claim of any content. Common softeners like “tends to” or “arguably” alone are left alone.',
+    find: makeRegexFinder(/\b(?:it\s+could\s+be\s+argued(?:\s+that)?|one\s+could\s+(?:reasonably\s+)?argue|some\s+might\s+(?:say|argue|contend)|it\s+is\s+often\s+the\s+case\s+that|(?:may|might)\s+potentially|can\s+sometimes\s+be|to\s+some\s+extent|generally\s+speaking|in\s+certain\s+contexts|no\s+one-size-fits-all)\b/gi)
+  },
+  {
+    id: 'pseudo-wisdom',
+    name: 'Pseudo-wisdom filler',
+    description: 'Sentences that sound like insight and cannot be wrong — “the key is to find the right balance”, “context is everything”, “true growth comes from within”, “it depends on your specific needs”, “success comes down to consistency”. They pass every grammar check while committing to nothing; the deletion test is the measure.',
+    find: makeRegexFinder(/\bthe\s+key\s+is\s+to\s+find\s+the\s+right\s+balance\b|\b(?:finding|striking)\s+the\s+right\s+balance\b|\btrue\s+\w+\s+comes\s+from\s+within\b|\b(?:context|timing|location|execution|consistency|distribution|positioning)\s+is\s+everything\b|\bthe\s+best\s+approach\s+is\s+the\s+one\s+that\s+works\s+for\s+you\b|\bit\s+(?:all\s+)?(?:comes\s+down\s+to|depends\s+on)\s+your\s+(?:specific\s+)?(?:needs|use\s+case|situation|context)\b|\bsuccess\s+(?:ultimately\s+)?comes\s+down\s+to\b/gi)
+  },
+  {
     id: 'ai-vocab',
     group: WIKI_GROUP,
     name: 'AI vocabulary words',
     description: 'Words LLMs lean on far more than people do \u2014 validated by frequency studies of post-ChatGPT writing (Kobak et al.; Liang et al.). \u201cdelve\u201d, \u201ctapestry\u201d, \u201cmeticulous\u201d, \u201cpivotal\u201d, \u201cintricate\u201d, \u201cunderscore\u201d, \u201cgarner\u201d, \u201cbolster\u201d, \u201cmultifaceted\u201d, \u201cseamless\u201d, \u201cshowcase\u201d, \u201cleverage\u201d, plus rarer high-signal tells \u201celucidate\u201d, \u201cdelineate\u201d, \u201cjuxtapose\u201d, \u201ctranscend\u201d, \u201cunveil\u201d, \u201cburgeoning\u201d, \u201cgroundbreaking\u201d, \u201cunparalleled\u201d, \u201cnuanced\u201d, \u201cmyriad\u201d, \u201cprowess\u201d. One hit can be coincidence \u2014 several is a tell.',
-    find: makeRegexFinder(/\b(?:delv(?:e|es|ed|ing)|tapestr(?:y|ies)|meticulous(?:ly)?|pivotal|intricate(?:ly)?|intricacies|interplay|underscor(?:e|es|ed|ing)|garner(?:s|ed|ing)?|bolster(?:s|ed|ing)?|vibrant|bustling|multifaceted|seamless(?:ly)?|commendable|ever-evolving|showcas(?:e|es|ed|ing)|foster(?:s|ed|ing)|leverag(?:e|es|ed|ing)|enhanc(?:e|es|ed|ing)|align(?:s|ed|ing)?\s+with|elucidat(?:e|es|ed|ing)|delineat(?:e|es|ed|ing)|juxtapos(?:e|es|ed|ing|ition)|streamlin(?:e|es|ed|ing)|catalyz(?:e|es|ed|ing)|transcend(?:s|ed|ing)?|unveil(?:s|ed|ing)?|illuminat(?:e|es|ed|ing)|spearhead(?:s|ed|ing)?|exemplif(?:y|ies|ied|ying)|encapsulat(?:e|es|ed|ing)|propel(?:s|led|ling)?|burgeoning|noteworthy|groundbreaking|unparalleled|transformative|nuanced|renowned|invaluable|versatile|myriad|prowess)\b/gi)
+    find: makeRegexFinder(/(?<![\w-])(?:delv(?:e|es|ed|ing)|tapestr(?:y|ies)|meticulous(?:ly)?|pivotal|intricate(?:ly)?|intricacies|interplay|underscor(?:e|es|ed|ing)|garner(?:s|ed|ing)?|bolster(?:s|ed|ing)?|vibrant|bustling|multifaceted|seamless(?:ly)?|commendable|ever-evolving|showcas(?:e|es|ed|ing)|foster(?:s|ed|ing)|leverag(?:e|es|ed|ing)|enhanc(?:e|es|ed|ing)|align(?:s|ed|ing)?\s+with|elucidat(?:e|es|ed|ing)|delineat(?:e|es|ed|ing)|juxtapos(?:e|es|ed|ing|ition)|streamlin(?:e|es|ed|ing)|catalyz(?:e|es|ed|ing)|transcend(?:s|ed|ing)?|unveil(?:s|ed|ing)?|illuminat(?:e|es|ed|ing)|spearhead(?:s|ed|ing)?|exemplif(?:y|ies|ied|ying)|encapsulat(?:e|es|ed|ing)|propel(?:s|led|ling)?|burgeoning|noteworthy|groundbreaking|unparalleled|transformative|nuanced|renowned|invaluable|versatile|myriad|prowess)(?![\w-])/gi)
   },
   {
     id: 'not-just',
     group: WIKI_GROUP,
-    name: '\u201cNot just X, but Y\u201d',
-    description: 'Negative parallelisms: \u201cnot just X, but (also) Y\u201d, \u201cnot only \u2026 but \u2026\u201d, and the \u201cit\u2019s not X \u2014 it\u2019s Y\u201d contrast.',
-    find: makeRegexFinder(/\bnot\s+(?:just|only|merely|simply)\s+[^.!?\n;]*?\bbut(?:\s+also)?\b|\b(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\s+not\s+[^.!?\n,;\u2014\u2013]{1,60}[,;\u2014\u2013]\s*(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\b/gi)
+    name: 'Negative parallelisms',
+    description: 'Negative parallelisms: \u201cnot just X, but (also) Y\u201d, \u201cnot only \u2026 but \u2026\u201d, the \u201cit\u2019s not X \u2014 it\u2019s Y\u201d contrast, and the trailing \u201cX is A, not B\u201d antithesis (\u201ca hypothesis, not a control\u201d) LLMs love as a closing kicker.',
+    find: makeRegexFinder(/\bnot\s+(?:just|only|merely|simply)\s+[^.!?\n;]*?\bbut(?:\s+also)?\b|\b(?:it|this|that)(?:(?:['\u2019]s|\s+(?:is|was))\s+not|\s+(?:is|are|was|were)n['\u2019]t)\s+[^.!?\n,;\u2014\u2013]{1,60}[,;\u2014\u2013]\s*(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\b|\b(?:is|are|was|were|be|been|being|['\u2019]s|remains?|stays?|becomes?|became)\s+[^.!?\n,;:\u2014\u2013]{1,50}?,\s+not\s+(?:a|an|the)\s+[^.!?\n]{1,60}?(?=[.!?]|$)/gi)
   },
   {
     id: 'note-that',
@@ -459,8 +477,8 @@ const patterns = [
     id: 'despite-challenges',
     group: WIKI_GROUP,
     name: '\u201cDespite these challenges\u201d',
-    description: 'The boilerplate challenges-and-outlook formula: \u201cdespite these challenges\u201d, \u201cfaces several challenges\u201d, \u201cchallenges remain\u201d, \u201cremains to be seen\u201d, \u201ctime will tell\u201d.',
-    find: makeRegexFinder(/\bdespite\s+(?:these|those|such|its|their|the|numerous|significant|ongoing)\s+(?:\w+\s+)?challenges\b|\bfac(?:e|es|ed|ing)\s+(?:several|numerous|many|significant|various|a\s+number\s+of)\s+challenges\b|\bchallenges\s+remain\b|\bremains\s+to\s+be\s+seen\b|\b(?:only\s+)?time\s+will\s+tell\b/gi)
+    description: 'The boilerplate challenges-and-outlook formula: \u201cdespite these challenges\u201d, \u201cfaces several challenges\u201d, \u201cchallenges remain\u201d, \u201cremains to be seen\u201d, \u201ctime will tell\u201d \u2014 plus the forward-glance wrap-ups \u201cmoving forward\u201d, \u201cas we look ahead\u201d, \u201cchallenges and opportunities / future prospects\u201d, and \u201cit\u2019s important to note\u201d.',
+    find: makeRegexFinder(/\bdespite\s+(?:these|those|such|its|their|the|numerous|significant|ongoing)\s+(?:\w+\s+)?challenges\b|\bfac(?:e|es|ed|ing)\s+(?:several|numerous|many|significant|various|a\s+number\s+of)\s+challenges\b|\bchallenges\s+remain\b|\bremains\s+to\s+be\s+seen\b|\b(?:only\s+)?time\s+will\s+tell\b|\bmoving\s+forward\b|\bas\s+we\s+look\s+ahead\b|\bchallenges\s+and\s+(?:future\s+)?(?:opportunities|prospects)\b|\bfuture\s+(?:outlook|prospects)\b|\bit['\u2019]s\s+important\s+to\s+note\b/gi)
   },
   {
     id: 'participle-tail',
@@ -487,8 +505,8 @@ const patterns = [
     id: 'copulative-avoidance',
     group: WIKI_GROUP,
     name: 'Copulative avoidance',
-    description: 'Elaborate constructions standing in for a plain \u201cis / are\u201d: \u201cserves as\u201d, \u201cstands as\u201d, \u201cfunctions as\u201d + a / an / the. AI prose reaches for these to sound weightier than \u201cX is Y\u201d.',
-    find: makeRegexFinder(/\b(?:serves?|serving|stands?|standing|functions?|functioning|positions?\s+itself)\s+as\s+(?:a|an|the)\b/gi)
+    description: 'Elaborate constructions standing in for a plain \u201cis / are\u201d: \u201cserves as\u201d, \u201cstands as\u201d, \u201cfunctions as\u201d + a / an / the, plus \u201crepresents a \u2026\u201d and \u201cmarks a significant / key / pivotal \u2026\u201d. AI prose reaches for these to sound weightier than \u201cX is Y\u201d.',
+    find: makeRegexFinder(/\b(?:serves?|serving|stands?|standing|functions?|functioning|positions?\s+itself)\s+as\s+(?:a|an|the)\b|\brepresents?\s+a\s+(?:\w+\s+)?(?:significant|key|pivotal|crucial|major|notable|important)?\s*(?:milestone|step|shift|change|advancement|breakthrough|departure)\b|\bmarks?\s+a\s+(?:significant|key|pivotal|crucial|major|notable|important)\b/gi)
   },
   {
     id: 'vague-association',

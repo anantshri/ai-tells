@@ -16,6 +16,19 @@
     <button id="clear" type="button" class="secondary">Clear</button>
   </div>
 
+  <section id="analysis" class="analysis" hidden aria-label="Page AI grade">
+    <div class="grade-head">
+      <span id="grade-chip" class="grade-chip">–</span>
+      <div class="grade-meta">
+        <strong id="grade-label">–</strong>
+        <span id="grade-sub" class="muted"></span>
+      </div>
+    </div>
+    <ul id="signal-list" class="signal-list"></ul>
+    <p class="caveat">Signals, not a verdict — formal, carefully edited, or
+      non-native writing can trip these. No single signal means AI.</p>
+  </section>
+
   <label class="site-toggle">
     <input type="checkbox" id="allow-site">
     <span>Auto-scan <strong id="origin">this site</strong> on load</span>

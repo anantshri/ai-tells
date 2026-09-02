@@ -10,8 +10,51 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ## [Unreleased]
 
+### Changed
+
+- AI Tells: the toolbar badge now reflects the page **grade** (fired-signal
+  count, colour-coded by tier) instead of the raw phrase-match count. Phrase
+  matches remain highlighted on the page and counted in the popup status.
+- AI Tells: the negative-parallelism detector (`not-just`, now surfaced as
+  "Negative parallelisms") also catches the trailing "X is A, not B" antithesis
+  — the "…is a hypothesis, not a control" closing kicker LLMs favour. Previously
+  only the "not just X, but Y" and "it's not X — it's Y" orderings were caught.
+- AI Tells: `not-just` now also catches the **contracted** reframe — "it isn't
+  X, it's Y" — which previously escaped on the contraction alone (only the
+  spelled-out "it's not X, it's Y" was caught).
+- AI Tells: the `ai-vocab` vocabulary detector no longer fires inside
+  **hyphenated compounds** — "highest-leverage", "leverage-based" and friends
+  are ordinary engineering English, not the LLM verb, and were false positives.
+
 ### Added
 
+- AI Tells: a ninth page-grading signal — **antithesis / negative-parallelism
+  density**. The document grade now counts "not just X but Y", "it isn't X,
+  it's Y", and "X, not Y" constructions and flags them when they cluster
+  (≥3 and >5 per 1k words), catching the structural reframe habit that the
+  per-phrase `not-just` detector can't see across a whole document. Convergence
+  still governs the verdict, so a lone antithesis-heavy passage stays "Low".
+- AI Tells: three new SlopDetector-researched detectors — **corporate verb
+  inflation** ("utilize", "facilitate", "in order to", "prior to"…),
+  **hedge stacking** ("it could be argued that", "may potentially",
+  "there is no one-size-fits-all"…), and **pseudo-wisdom filler** ("the key is
+  to find the right balance", "context is everything"…) — 56 detectors total.
+  Read-more links point at the SlopDetector research; NOTICE/README credit it
+  directly (surfaced via the AI-Writing-Rules curation). 366 tests.
+- AI Tells: extended five detectors with researched phrases — scene-setting
+  ("picture this", "now more than ever", "it's no secret"…), despite-challenges
+  ("moving forward", "as we look ahead", "future prospects"), copulative
+  avoidance ("represents a significant…", "marks a pivotal…"), journey-metaphor
+  ("sets the stage", "underscores the importance of").
+- AI Tells: **document-level page grading**. Alongside the per-phrase
+  highlighter, a scan now computes a model-free stylometric grade from eight
+  independent signals (sentence-length burstiness, em-dash density, transition
+  and expletive openers, rule-of-three density, unicode-typography cluster,
+  paragraph-length uniformity, and DOM bold-lead-in lists). The toolbar icon
+  badge shows how many signals co-fired, tinted green→amber→orange→red by tier,
+  and the popup gains an **Analysis panel** with the overall grade, a per-signal
+  breakdown, and the "signals, not a verdict" false-positive caveat. Pages with
+  too little text (< ~150 words) are deliberately left ungraded.
 - Cross-browser builds: `npm run build` now emits `dist/chrome` (Chrome/Edge/
   Opera/Brave), `dist/firefox` (event-page background + gecko add-on id), and
   `dist/safari` (Xcode-convertible). Same code everywhere — only the manifest

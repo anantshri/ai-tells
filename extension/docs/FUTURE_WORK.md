@@ -2,14 +2,31 @@
 
 Ideas evaluated and deferred, with enough detail to pick up later.
 
-## Document-level statistical / stylometric scoring (deferred)
+## Document-level statistical / stylometric scoring (partially implemented)
+
+**Status (2026-08-29): shipped a first cut** — `src/stats.js` computes a
+document-level grade during each scan, the toolbar badge shows the co-firing
+signal count tinted by tier, and the popup has an Analysis panel with the
+per-signal breakdown and caveat. Implemented signals: sentence-length
+burstiness, paragraph-length uniformity, em-dash density, transition openers,
+expletive openers, rule-of-three density, unicode-typography cluster, the
+DOM bold-lead-in-list ratio, and (2026-09-01) **antithesis / negative-parallelism
+density**. **Still deferred** (kept out to stay high-precision): lexical
+diversity (MATTR), nominalization↑/adverb↓, and punctuation-variety poverty —
+see the table below.
+
+> **Note on em-dash density (2026-09-01):** `signalEmDash` counts only the
+> typographic em-dash `—` (U+2014), deliberately *not* the ASCII `--` double
+> hyphen. A friend's run of the tool on plain-text `--`-heavy prose was a useful
+> reminder why: LLMs overwhelmingly emit `—`, while someone typing in a plain
+> editor produces `--`, so a high `--` rate leans *human*, not AI. Folding `--`
+> into the em-dash signal would invert its meaning. If `--` ever becomes a
+> signal it belongs as its own (toward-human) feature, tracked separately.
 
 The current tool is a **per-span highlighter** — it flags specific words/phrases.
-A complementary capability is a **document-level "AI-likelihood" score** computed
-from stylometric signals. These are all **model-free and O(n)** over the page's
-visible text (no API, no ML), so they fit a client-side extension — but they are
-a different modality (a score/verdict, not a highlight) and would need a new
-popup panel plus honest framing.
+The complementary capability is a **document-level "AI-likelihood" score**
+computed from stylometric signals. These are all **model-free and O(n)** over the
+page's visible text (no API, no ML), so they fit a client-side extension.
 
 ### Candidate signals (with formulas and thresholds from the research)
 

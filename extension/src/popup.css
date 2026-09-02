@@ -32,6 +32,32 @@ button.secondary { color: #6e6a62; }
 #scan { font-weight: bold; background: #fcd34d; border-color: #eab308; }
 #scan:hover { background: #fbbf24; }
 
+.analysis {
+  margin-bottom: 12px; padding: 10px 11px;
+  background: #fff; border: 1px solid #e7e3db; border-radius: 6px;
+}
+.grade-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.grade-chip {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%; flex: none;
+  background: #a29b8d; color: #fff; font-weight: bold; font-size: 16px;
+}
+.grade-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.grade-meta strong { font-size: 13px; }
+
+.signal-list { list-style: none; margin: 0; padding: 0; }
+.signal-row {
+  display: flex; align-items: center; gap: 7px;
+  padding: 2px 0; font-size: 12px; color: #6e6a62;
+}
+.signal-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: #d9d4c9; }
+.signal-row.fired .signal-dot { background: #dc2626; }
+.signal-row.fired .signal-name { color: #1d1b17; font-weight: bold; }
+.signal-row.na { opacity: 0.5; }
+.signal-name { flex: none; }
+.signal-val { margin-left: auto; text-align: right; color: #a29b8d; padding-left: 8px; }
+.caveat { margin: 8px 0 0; font-size: 11px; color: #a29b8d; line-height: 1.4; }
+
 .site-toggle {
   display: flex;
   align-items: center;

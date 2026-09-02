@@ -8,17 +8,20 @@ guide. Hover a highlight to see which signal was picked and a link to read more.
 
 ## What it does
 
-- **53 detectors** in two groups — "Rhetorical tics" (yellow) and "Signs of AI
+- **56 detectors** in two groups — "Rhetorical tics" (yellow) and "Signs of AI
   writing (Wikipedia)" (blue). The core engine is ported **verbatim** from the
-  reference tool (38 detectors); 15 more were added on top — three
+  reference tool (38 detectors); 18 more were added on top — three
   Wikipedia-guide signs (copulative avoidance, vague association, canned
-  notability) and twelve research-/community-sourced phrase detectors (chatbot
+  notability) and fifteen research-/community-sourced phrase detectors (chatbot
   pleasantries, scene-setting openers, journey metaphors, "dive into", hype
   buzzwords, formulaic conclusions, vague appeals to research, corporate
   buzzwords, AI fiction clichés, "something for everyone", the cataphoric teaser,
-  and superlative hook openers) — and the vocabulary/chatbot-leftover detectors
+  superlative hook openers, corporate verb inflation, hedge stacking, and
+  pseudo-wisdom filler) — and the vocabulary/chatbot-leftover detectors
   were extended with
-  study-validated words and newer markup artifacts.
+  study-validated words and newer markup artifacts. Detector extensions from
+  SlopDetector's thresholded pattern research are noted in
+  [`../NOTICE`](../NOTICE).
   A document-level statistical scoring layer is planned; see
   [`docs/FUTURE_WORK.md`](docs/FUTURE_WORK.md).
 - **No DOM mutation.** Highlights are painted with the
@@ -27,6 +30,11 @@ guide. Hover a highlight to see which signal was picked and a link to read more.
 - **Hover tooltip** naming the signal, its description, and a **Read more** link
   (Wikipedia guide section for the Wikipedia group; the source catalogue for the
   rhetorical tics).
+- **Document-level page grade** (model-free, no API/ML). A scan also scores the
+  whole page against eight stylometric signals; the toolbar badge shows how many
+  co-fired, tinted green→red by tier, and the popup's Analysis panel lists the
+  per-signal breakdown with a false-positive caveat. Short pages (< ~150 words)
+  are left ungraded — no single signal convicts.
 - **Allowlist activation.** Opt a site in and it auto-scans on load and re-scans
   on DOM changes; everywhere else, click **Scan this page** in the popup.
 - `colon-triple` ships **off** by default (noisy on technical pages); toggle any
@@ -42,7 +50,7 @@ back onto a DOM `Range` (which may span nodes). `src/content.js` paints those
 ranges and resolves hovers via caret hit-testing back through the buffer map.
 
 ```
-src/patterns.js   detector engine (53 patterns + factories + dedup); 38 ported verbatim
+src/patterns.js   detector engine (56 patterns + factories + dedup); 38 ported verbatim
 src/meta.js       per-pattern group + "read more" URL
 src/detect.js     DOM <-> buffer bridge, match -> Range mapping, hover lookup
 src/content.js    highlight painting, interactive tooltip, MutationObserver

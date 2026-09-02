@@ -9,6 +9,360 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-09-01 — Detector gaps found via a real sample (contracted reframe, ai-vocab hyphen guard, antithesis-density signal)
+
+**Summary:** Investigated a GitHub issue
+([momo5502/sogen#1315](https://github.com/momo5502/sogen/issues/1315)) a user
+suspected was AI-written but the tool scored clean. Running both engine layers
+over the verbatim body (543 words) confirmed the miss and pinpointed three
+defects. Fixed two phrase-detector bugs and added a ninth page-grading signal.
+366 → 375 tests. No behavioural regressions.
+
+**Why:** The text is "competent slop" — it dodges the vocabulary clichés and
+leans on *structural* tells instead. Diagnosis, corroborated by a friend's
+independent run of the tool on `main` (`chatlog.txt` in the repo root):
+
+1. `not-just` (patterns.js) matched "it's not X, it's Y" but not the contracted
+   "it **isn't** X, it's Y" — the sample's backbone construction. A contraction
+   technicality, not a design choice.
+2. `ai-vocab` fired on "leverage" inside "the highest-**leverage** single
+   change" — a hyphenated noun modifier, ordinary engineering English. `\b`
+   treats a hyphen as a boundary, so the LLM-verb list matched inside compounds.
+   This was the *only* phrase hit a default-settings user would have seen on the
+   705-word sample, and it was a false positive.
+3. No document-level detector for antithesis density — the reframe habit
+   ("not X but Y", "it isn't X, it's Y", "X, not Y") that recurs ~1 per 90 words
+   in the sample. `stats.js` had burstiness and rule-of-three but not this.
+
+A **fourth** idea from the first-pass diagnosis — counting ASCII `--` as an
+em-dash so `signalEmDash` fires — was **retracted**. The friend's run pointed
+out that `--` (vs typographic `—`) is one of the strongest *human* signals:
+LLMs emit `—`. Folding `--` into em-dash density would invert the signal's
+meaning. Documented the reasoning in `docs/FUTURE_WORK.md` so it doesn't
+resurface.
+
+**What changed:**
+
+- `extension/src/patterns.js`
+  - `not-just` (id): extended the middle reframe alternative to accept a
+    contracted copula — `(?:it|this|that)(?:(?:'s|\s+(?:is|was))\s+not|\s+(?:is|are|was|were)n't)\s+…`.
+    Deliberately kept subject-restricted to it/this/that (so the phrase-level
+    highlight stays tight); the subject-agnostic form is handled by the new
+    stats signal instead.
+  - `ai-vocab` (id): replaced the wrapping `\b…\b` with `(?<![\w-])…(?![\w-])`
+    so a vocab word inside a hyphenated compound ("highest-leverage",
+    "leverage-based") no longer matches. Standalone words and the list's own
+    hyphenated entry "ever-evolving" still match.
+- `extension/src/stats.js`
+  - New `signalAntithesis` (key `antithesis`) + `ANTITHESIS_PATTERNS` /
+    `countAntithesis`. Counts non-overlapping "not just X but Y", contracted and
+    spelled-out "isn't/is not X, it's Y" reframes (subject-agnostic on the left),
+    and "X, not <determiner> Y". Fires at ≥3 constructions **and** >5 per 1k
+    words. "instead of" / "rather than" intentionally excluded — too common in
+    ordinary prose to survive as a signal. Added to the `gradePage` signals
+    array (now 9 signals; `tierOf` thresholds unchanged).
+
+**Commands:**
+
+```
+# diagnosis
+node scan.mjs        # phrase engine: 4 weak hits (one, ai-vocab "leverage", an FP)
+node grade.mjs       # doc grader: 0/8 fired, tier Low
+# after fixes
+npx vitest run --coverage    # 375 passed; stats.js 100% lines, patterns.js changed lines covered
+aidc-scan                    # semgrep + gitleaks clean; rest skipped (no matching files)
+```
+
+**Verification:**
+
+- `not-just`: "It isn't perfection, it's coherence." → 1; "It isn't ready yet."
+  → 0 (no reframe pivot); existing "It's not a bug — it's a feature." still 1.
+- `ai-vocab`: "highest-leverage" / "leverage-based" → 0; "We leverage the
+  platform to enhance results." → 2; "ever-evolving landscape" → 1 (unchanged).
+- `antithesis`: fires on a 151-word negative-parallelism fixture (6 constructions,
+  39.7/1k); silent on the human control; a lone "…a marathon, not a sprint."
+  stays unfired (density floor). On the sogen sample it fires (3 constructions,
+  5.5/1k) but the document stays **Low** (firedCount 1) — convergence correctly
+  declines to convict, matching the manual read that the text leans human.
+
+**Notes:**
+
+- The engine reporting "clean" on this text is not evidence it's human — it means
+  the text dodged the catalogued phrases. The manual read (and the friend's) put
+  it at ~25% odds of meaningful AI involvement, i.e. probably human but mannered.
+  These fixes improve what a *better* detector can see; they are not an accusation
+  about this specific author.
+- `chatlog.txt` (repo root, untracked) came from another environment on `main`;
+  its detector counts (53/48) and line numbers predate this branch. Kept for
+  reference, not treated as authoritative for `page-grade`.
+
+---
+
+## 2026-08-31 — SlopDetector-researched detectors (verb inflation, hedge stacking, pseudo-wisdom) + 5 detector extensions
+
+**Summary:** Mined the pattern research behind
+[AI-Writing-Rules](https://github.com/Abdulkader-Safi/AI-Writing-Rules) (an
+MIT Claude Code plugin) for anything our engine lacked, and ported the genuine
+gaps: three new detectors and added phrases across five existing ones. Pattern
+research credited directly to its primary source — SlopDetector's
+[12 measured patterns](https://slopdetector.org/blog/signs-of-ai-writing) —
+with AI-Writing-Rules acknowledged as the curation we discovered it through.
+53 → 56 detectors; 315 → 366 tests.
+
+**Why:** Their 17 regex + 3 statistical rules overlap ours heavily (negative
+parallelism, AI vocab, testament/role/landscape, vague attribution, outline
+endings, participle tails, chat scaffolding, model artifacts, burstiness /
+transition-stacking / rule-of-three — the latter three already in `stats.js`
+with five more signals they lack). Diffed against our 53, three pattern
+families had no coverage at all: Latinate verb swaps, stacked hedges, and
+unfalsifiable wisdom sentences. Two of their noisy markdown rules (per-span
+em-dash / curly-quote flagging) were deliberately NOT taken — they lint
+Claude's own output where smart quotes are always a tell, but we judge live
+web pages where CMSes auto-curl quotes and em-dashes are legitimate typography;
+our doc-level `typography` cluster signal in `stats.js` is the right altitude.
+
+**What changed:**
+- `src/patterns.js` — three new detectors (Rhetorical tics group):
+  - `verb-inflation` — Latinate swaps ("utilize", "facilitate", "commence",
+    "ascertain", "endeavor") + connective padding ("in order to", "prior to",
+    "subsequent to", "in the event that", "with regard to", "a number of",
+    "the vast majority of"). Deliberately excludes "implement", "optimize",
+    "terminate", "demonstrate" — literal vocabulary on technical pages, and
+    over-matching them is the fastest way to make the extension feel noisy.
+  - `hedge-stack` — "it could be argued that", "one could argue", "some might
+    say", "may potentially", "can sometimes be", "to some extent", "generally
+    speaking", "in certain contexts", "no one-size-fits-all". Common
+    softeners ("tends to", bare "arguably") deliberately excluded — one hedge
+    is honest writing; the tell is stacking.
+  - `pseudo-wisdom` — "the key is to find the right balance", "true X comes
+    from within", "context is everything", "the best approach is the one that
+    works for you", "it comes down to your specific needs", "success comes
+    down to…".
+- `src/patterns.js` — extended detectors:
+  - `scene-setting` += "in an era of", "in the digital age", sentence-initial
+    "picture this" (anchored `(?:^|[.!?]\s+)` after a test caught "The picture
+    this frame captures" as an FP), "imagine a world where", "it's no secret",
+    "let's face it", "now more than ever", "as technology continues to".
+  - `despite-challenges` += "moving forward", "as we look ahead", "challenges
+    and (future) opportunities/prospects", "future outlook/prospects", "it's
+    important to note".
+  - `copulative-avoidance` += "represents a significant/key/pivotal…
+    milestone/step/shift…", "marks a significant/key/pivotal…".
+  - `journey-metaphor` += "set(s)/setting the stage", "underscores the
+    importance of".
+- `src/meta.js` — `SLOP_PATTERNS` set routes the read-more link for the three
+  new detectors + `scene-setting` to the SlopDetector article (the page is
+  client-rendered, no stable anchors — root URL, consistent with our
+  anchor-drift fallback behaviour). `WIKI_ANCHORS` keeps precedence:
+  `despite-challenges` stays deep-linked to Wikipedia's "Outline-like
+  conclusions" section, which genuinely covers the added phrases.
+- `NOTICE` / `README.md` — SlopDetector credited as the pattern-research
+  source; AI-Writing-Rules noted as the curation vector. Detector counts
+  53 → 56, test badge 287 → 365.
+- Tests: `new-signs.test.js` +50 cases (positives, negatives, FP-guards incl.
+  the deliberate-exclusion checks: "terminate()" and "demonstrated" must NOT
+  trip verb-inflation); `patterns.test.js` ADDED-set updated for the three new
+  ids; `meta.test.js` +1 SlopDetector-link case.
+
+**How / commands run:**
+```
+npm test                    # 366 passed
+npx vitest run --coverage   # patterns 86/91/85/90; meta 100/94/100/100
+npm run build               # dist/{chrome,firefox,safari}
+aidc-scan                   # semgrep + gitleaks clean
+```
+
+**Verification:** 366 tests passing, build OK across
+all three targets, scan clean. FP guard verified live: "The picture this frame
+captures is sharp." initially matched bare `picture\s+this` — caught by its
+negative test case, fixed with the sentence-start anchor, regression-tested.
+The deliberate-exclusion boundaries (terminate/demonstrate/optimize/
+implement; tends to/arguably) are pinned by explicit 0-expectation cases.
+
+**Notes:** Attribution chain decided with the user: credit SlopDetector and
+Wikipedia directly (they're the primary researchers and our read-more links
+target them); AI-Writing-Rules gets an honest mention in NOTICE as the
+curation we found the research through, not as the pattern author. Their
+"empty openers" / "vague attribution" extensions folded into existing
+detectors rather than new ones to avoid duplicate firing on the same span.
+Candidate NOT taken: per-span em-dash/curly-quote flags (too noisy for
+arbitrary web pages, wrong altitude — handled at doc level in stats.js).
+
+---
+
+## 2026-08-29 — Document-level page grading + graded toolbar icon
+
+**Summary:** Implemented the deferred document-level "AI-likelihood" scorer from
+`extension/docs/FUTURE_WORK.md`. A scan now computes a model-free, O(n)
+stylometric grade over the page's flattened text; the toolbar badge shows the
+count of co-firing signals tinted by tier (green→red), and the popup gains an
+Analysis panel with the per-signal breakdown and the false-positive caveat. The
+badge, which last branch showed the raw phrase-match count, now shows the grade.
+
+**Why:** The phrase highlighter is a per-span detector; well-edited AI prose can
+trip zero phrase detectors yet still read as machine-made (the user's earlier
+challenge paragraph did exactly that). A convergence-based document score is the
+complementary modality the design doc scoped. User picked: badge = fired-signal
+count + severity colour; scope = full (engine + icon + popup panel).
+
+**What changed:**
+- `src/stats.js` (new): pure engine.
+  - Eight signals, each `{key,label,applicable,fired,value,display}`:
+    sentence-length burstiness (CV < 0.4), paragraph-length uniformity (CV < 0.4,
+    needs ≥4 paragraphs), em-dash density (> 10 per 1k words), transition-opener
+    ratio (> 10% of sentences), expletive-opener ratio ("It is/There are/…",
+    > 10%), rule-of-three density (≥2 triads and > 5 per 1k words), unicode
+    typography cluster (curly quotes + ellipsis + em-dash all present), and a
+    DOM bold-lead-in-list ratio (> 50% of ≥3 `<li>` led by `<strong>/<b>`).
+  - `gradePage(buffer, doc?)` gates on `MIN_WORDS` (150) and `MIN_SENTENCES` (8),
+    then returns `{eligible, words, sentences, signals[], applicableCount,
+    firedCount, tier, tierLabel}`. `tierOf(n)`: 0–2 low, 3–4 some, 5–6 elevated,
+    7+ high. `badgeForGrade(grade)` → `{text, color}` (fired count + tier colour)
+    or `null` when the page is too short to grade.
+- `src/content.js`: computes `gradePage(res.buffer, document)` at the end of
+  `runScan()`, stores `state.lastGrade`, reports `{type:'pageGrade', badge}` to
+  the worker (null on `deactivate()`), and returns the grade in the `scan`/`ping`
+  message responses so the popup can render it.
+- `src/background.js`: replaced the match-count path with a `pageGrade` handler
+  that sets a **per-tab** badge text + background colour
+  (`chrome.action.setBadgeBackgroundColor({tabId,color})`); still clears on
+  `tabs.onUpdated` `loading`. `src/badge.js` (the old count formatter) and its
+  test were removed.
+- `src/popup.{html,css,js}`: new Analysis panel — coloured grade chip, tier +
+  fired/applicable count, per-signal rows (fired = bold + red dot, n/a dimmed),
+  and the caveat. Rendered from the `scan` response and from a `ping` on popup
+  open (so an auto-scanned page shows its grade immediately).
+- `tests/stats.test.js` (new, 22 cases): helpers, tier thresholds, eligibility
+  gating (incl. non-string buffer), an AI fixture (converges ≥5 signals →
+  elevated) vs a human fixture (eligible, 0 signals → green "0"), the DOM
+  bold-list signal (fires / doesn't / n/a / no-lists), and display edge cases.
+  `vitest.config.js`: swapped `badge.js` for `stats.js` in the coverage include.
+
+**How / commands run:**
+```
+node /tmp/grade_probe*.mjs   # tuned AI/human fixtures against real thresholds
+npm test -- --coverage       # 314 passed; stats.js 100% stmts/lines/funcs
+npm run build                # dist/{chrome,firefox,safari}
+aidc-scan                    # clean
+```
+
+**Verification:** stats.js at 100% statement/line/function coverage (remaining
+uncovered branches are defensive divide-by-zero / type guards unreachable after
+the eligibility check). Re-graded the user's challenge paragraph: 126 words →
+**ineligible**, so the grader abstains — the intended behaviour for short text.
+Confirmed both `content.js` and `background.js` bundles carry the `pageGrade`
+path. Browser-integration behaviour (per-tab badge colour, popup panel) is
+manual-verify per `docs/VERIFY.md` steps 2–3.
+
+**Notes:** No new permissions. Thresholds are deliberately conservative and the
+verdict is convergence-based (no single signal convicts), per the design doc's
+non-negotiable caveat. Remaining `FUTURE_WORK` signals (MATTR lexical diversity,
+nominalization/adverb ratio, punctuation-variety poverty) were left out to keep
+the first cut high-precision; they can be added as further signals later.
+
+---
+
+## 2026-08-29 — Negative parallelism: catch the trailing "X, not Y" antithesis
+
+**Summary:** Extended the `not-just` detector to catch the trailing antithesis
+"X is A, not B" (e.g. "…is a hypothesis, not a control"), and renamed its
+display label from "Not just X, but Y" to "Negative parallelisms" to reflect the
+now-broader family. `id`, group, and Wikipedia anchor are unchanged.
+
+**Why:** A user-supplied, near-certainly-AI paragraph tripped *zero* of the 53
+detectors. Running the engine over it showed the strongest tell — the aphoristic
+closing kicker "A rule that has not survived a bypass attempt is a hypothesis,
+not a control." — was a negative parallelism our detector already owned but only
+in the restatement-second ordering ("it's not X, it's Y"). The trailing
+"…, not B" ordering slipped through on a word-order technicality. This is a
+deliberate push to extend prose/phrase detection before building the planned
+document-level statistical scorer (`docs/FUTURE_WORK.md`).
+
+**What changed:**
+- `src/patterns.js`: added a third alternation to the `not-just` find regex:
+  `\b(?:is|are|was|were|be|been|being|['’]s|remains?|stays?|becomes?|became)\s+[^.!?\n,;:—–]{1,50}?,\s+not\s+(?:a|an|the)\s+[^.!?\n]{1,60}?(?=[.!?]|$)`.
+  Precision guards, chosen from false-positive probing: requires a copula, a
+  comma, and an **article** after "not" (so "here, not there" / "not great"
+  don't fire), and anchors to sentence end via a zero-width lookahead (kept out
+  of the highlight span). Name → "Negative parallelisms"; description expanded.
+- `tests/cases.js`: 4 new true-positive cases (the paragraph's line, "marathon
+  not a sprint", "feature not a bug", "a practice not a title") and 4
+  false-positive guards (no-article, plain negation, no-copula imperative,
+  mid-sentence "not great").
+
+**How / commands run:**
+```
+node /tmp/probe2.mjs      # regex TP/FP probing before editing (5/5 TP, 7/7 FP clean)
+npm test                  # 301 passed (was 293); EXAMPLE-trips-once invariant still holds
+npm run build             # dist/{chrome,firefox,safari}
+aidc-scan                 # clean
+```
+
+**Verification:** Re-ran the engine over the source paragraph: now 1 match
+("is a hypothesis, not a control") where it previously found none. The
+"example text trips every reference pattern exactly once" invariant test passed,
+confirming the new arm doesn't double-fire on the reference EXAMPLE.
+
+**Notes:** Deliberately conservative — the article requirement trades some
+recall (misses "is red, not blue") for precision, since the real signal is the
+*aphoristic* quality, which regex can't fully isolate from ordinary contrast.
+Structural tells in the same paragraph (fake-precise "trivial ten percent",
+uniform declarative cadence, "and so does an AI" symmetry) remain out of reach
+for phrase matching and are the case for the statistical layer.
+
+---
+
+## 2026-08-29 — Toolbar match-count badge
+
+**Summary:** After a page scan, the extension's toolbar action icon shows a
+per-tab badge with the number of matches found. The badge clears when
+highlights are cleared and when the tab navigates.
+
+**Why:** The match count was only visible as transient text in the popup. A
+persistent badge on the toolbar icon surfaces "this page looks AI-ish, and by
+how much" at a glance — including on allowlisted sites that auto-scan without
+the user ever opening the popup.
+
+**What changed:**
+- `src/badge.js` (new): pure `badgeText(count)` — returns `''` for zero /
+  negative / non-finite input (hides the badge), floors fractional counts, and
+  caps at `"999+"` so the text fits the toolbar badge. Isolated here so it is
+  unit-testable without the `chrome.*` APIs.
+- `src/background.js`: sets global badge colours (red bg `#DC2626`, white text
+  where `setBadgeTextColor` exists); listens for `{type:'matchCount', count}`
+  messages from the content script and renders them per-tab via
+  `chrome.action.setBadgeText({tabId, text})` keyed on `sender.tab.id`; and
+  clears a tab's badge on `chrome.tabs.onUpdated` `status === 'loading'` so a
+  stale count can't linger across a navigation. Message sender is validated
+  (`sender.id === chrome.runtime.id` and `sender.tab` present).
+- `src/content.js`: `reportCount(count)` sends the count to the worker (wrapped
+  in try/catch + `lastError` swallow for a torn-down extension context). Called
+  with the match count at the end of `runScan()` and with `0` in `deactivate()`.
+- `tests/badge.test.js` (new): covers `badgeText` — positive numbers, zero,
+  negative/NaN/Infinity/string/undefined/null, numeric strings, fractional
+  flooring, and the 999 cap.
+- `vitest.config.js`: added `src/badge.js` to the coverage `include` list.
+- Docs: `docs/VERIFY.md` new manual check for the badge (per-tab count, clear,
+  navigation reset); `CHANGELOG.md` Unreleased/Added bullet.
+
+**How / commands run:**
+```
+npm test -- --coverage   # 293 passed; badge.js 100% (statements 281/314 -> 286/319)
+npm run build            # dist/{chrome,firefox,safari} rebuilt
+aidc-scan                # security gate on changed files
+```
+
+**Verification:** Unit tests green with `badge.js` fully covered. The
+chrome-glue layer (message passing, `chrome.action`, `tabs.onUpdated`) is
+verified manually per `docs/VERIFY.md` step 2, matching the existing convention
+that jsdom can't exercise the browser APIs.
+
+**Notes:** No new manifest permissions — the action API is implicit in MV3 and
+`tabs.onUpdated` needs only `tabId`/`status` (no host/`tabs` permission). Badge
+text is per-tab, so each tab reflects its own last scan.
+
+---
+
 ## 2026-08-29 — Renamed to "AI Tells" + new icon
 
 **Summary:** Rebranded from "AI Cliché Highlighter" to **AI Tells** (repo/package

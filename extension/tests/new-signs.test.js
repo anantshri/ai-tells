@@ -118,6 +118,71 @@ const cases = [
   ['hook-opener', 'The worst mistake you can make is waiting.', 1],
   ['hook-opener', 'The best way to cook pasta is to boil it.', 0],
   ['hook-opener', 'The best part is the ending.', 0],
+
+  // Corporate verb inflation (SlopDetector sign 2: Latinate swaps for plain verbs)
+  ['verb-inflation', 'We utilize the API and facilitate faster builds.', 2],
+  ['verb-inflation', 'The team will commence testing prior to the release.', 2],
+  ['verb-inflation', 'In order to ascertain the cause, we re-ran the audit.', 2],
+  ['verb-inflation', 'A number of users reported the glitch.', 1],
+  ['verb-inflation', 'They endeavored to finish before the deadline.', 1],
+  ['verb-inflation', 'We use the API to speed up the build.', 0],
+  ['verb-inflation', 'The optimizer shortened the hot loop.', 0],
+  ['verb-inflation', 'She demonstrated the prototype at the review.', 0],
+  // "terminate" is deliberately excluded (technical vocabulary)
+  ['verb-inflation', 'Call terminate() to end the session.', 0],
+
+  // Hedge stacking (stacked unfalsifiable qualifiers)
+  ['hedge-stack', 'It could be argued that this approach may potentially help.', 2],
+  ['hedge-stack', 'To some extent, the results can sometimes be noisy.', 2],
+  ['hedge-stack', 'Generally speaking, teams prefer smaller services.', 1],
+  ['hedge-stack', 'There is no one-size-fits-all answer here.', 1],
+  ['hedge-stack', 'One could argue the tradeoff is worth it.', 1],
+  ['hedge-stack', 'The process tends to be slow on old hardware.', 0],
+  ['hedge-stack', 'Arguably, the first version was better.', 0],
+
+  // Pseudo-wisdom filler (sounds like insight, cannot be wrong)
+  ['pseudo-wisdom', 'The key is to find the right balance.', 1],
+  ['pseudo-wisdom', 'At the end of the day, context is everything.', 1],
+  ['pseudo-wisdom', 'It all comes down to your specific needs.', 1],
+  ['pseudo-wisdom', 'True growth comes from within.', 1],
+  ['pseudo-wisdom', 'Success ultimately comes down to consistency.', 1],
+  ['pseudo-wisdom', 'The best approach is the one that works for you.', 1],
+  ['pseudo-wisdom', 'It depends on your use case more than anything.', 1],
+  ['pseudo-wisdom', 'Timing is everything in comedy.', 1],
+  ['pseudo-wisdom', 'Finding the right balance takes practice.', 1],
+  ['pseudo-wisdom', 'We balanced the load across three nodes.', 0],
+  ['pseudo-wisdom', 'The tradeoff depends on the compiler version.', 0],
+
+  // scene-setting extensions (empty-opener family)
+  ['scene-setting', 'Picture this: a team shipping weekly without a QA gate.', 1],
+  ['scene-setting', 'Now more than ever, security reviews matter.', 1],
+  ["scene-setting", "It's no secret that demos are rehearsed.", 1],
+  ['scene-setting', 'In an era of cheap storage, retention is easy.', 1],
+  ['scene-setting', 'As technology continues to evolve, so do attacks.', 1],
+  ['scene-setting', 'Imagine a world where deploys are boring.', 1],
+  ['scene-setting', 'Let’s face it: nobody reads the manual.', 1],
+  ['scene-setting', 'In the digital age, attention is scarce.', 1],
+  ['scene-setting', 'The picture this frame captures is sharp.', 0],
+
+  // despite-challenges extensions (forward-glance wrap-ups)
+  ['despite-challenges', 'Moving forward, the team will split into two tracks.', 1],
+  ['despite-challenges', 'As we look ahead, priorities may shift.', 1],
+  ['despite-challenges', 'The paper ends with challenges and future prospects.', 1],
+  ['despite-challenges', 'The report closes on the future outlook for the sector.', 1],
+  ["despite-challenges", "It's important to note that budgets differ.", 1],
+  ['despite-challenges', 'He moved the meeting forward by a day.', 0],
+
+  // copulative-avoidance extensions ("represents a …", "marks a significant …")
+  ['copulative-avoidance', 'The acquisition represents a significant milestone for the region.', 1],
+  ['copulative-avoidance', 'This release marks a pivotal shift in strategy.', 1],
+  ['copulative-avoidance', 'The chart represents a sample of the data.', 0],
+  ['copulative-avoidance', 'The logo marks a change of sponsor.', 0],
+
+  // journey-metaphor extensions ("sets/setting the stage", "underscores the importance of")
+  ['journey-metaphor', 'The deal sets the stage for further expansion.', 1],
+  ['journey-metaphor', 'The partnership is setting the stage for a merger.', 1],
+  ['journey-metaphor', 'This failure underscores the importance of backups.', 1],
+  ['journey-metaphor', 'The crew built a stage for the school play.', 0],
 ];
 
 describe('new signs (post-reference additions)', () => {

@@ -20,6 +20,12 @@ describe('meta', () => {
     expect(isWikiPattern('no-chain')).toBe(false);
   });
 
+  test('SlopDetector-researched patterns link to the measured-thresholds article', () => {
+    for (const id of ['verb-inflation', 'hedge-stack', 'pseudo-wisdom', 'scene-setting']) {
+      expect(moreUrlFor(id)).toBe('https://slopdetector.org/blog/signs-of-ai-writing');
+    }
+  });
+
   test('unknown ids resolve safely', () => {
     expect(metaFor('does-not-exist')).toBeNull();
     expect(groupFor('does-not-exist')).toBe('Rhetorical tics');
