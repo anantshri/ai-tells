@@ -8,7 +8,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4.svg?logo=googlechrome&logoColor=white)](./extension/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-366%20passing-brightgreen.svg)](./extension/tests)
+[![Tests](https://img.shields.io/badge/tests-401%20passing-brightgreen.svg)](./extension/tests)
 [![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen.svg)](#testing)
 [![Zero runtime deps](https://img.shields.io/badge/runtime%20deps-0-success.svg)](./extension/package.json)
 
@@ -35,7 +35,7 @@ guide, word lists validated by post-ChatGPT frequency studies, and a batch of
 
 ## Features
 
-- **56 detectors** in two groups — *Rhetorical tics* (yellow) and *Signs of AI
+- **58 detectors** in two groups — *Rhetorical tics* (yellow) and *Signs of AI
   writing (Wikipedia)* (blue) — including research-backed phrase clichés and a
   vocabulary list validated by post-ChatGPT word-frequency studies.
 - **No DOM mutation** — highlights are painted with the
@@ -45,7 +45,7 @@ guide, word lists validated by post-ChatGPT frequency studies, and a batch of
   and links to the source (Wikipedia guide section, or the original tool).
 - **Per-site allowlist** — opt a site in and it auto-scans on load and re-scans
   as the page changes; everywhere else, scan on demand from the popup.
-- **Toggle any detector** — 56 individually switchable; the noisy `colon-triple`
+- **Toggle any detector** — 58 individually switchable; the noisy `colon-triple`
   ships off by default.
 - **Private & self-contained** — everything runs locally, **zero runtime
   dependencies**, no network calls, nothing leaves your browser.
@@ -97,7 +97,7 @@ into one buffer + offset map      over the buffer                   back to DOM
 
 | File | Responsibility |
 | --- | --- |
-| `extension/src/patterns.js` | Detector engine — 56 patterns, factories, dedup (38 ported verbatim) |
+| `extension/src/patterns.js` | Detector engine — 58 patterns, factories, dedup (38 ported verbatim) |
 | `extension/src/detect.js`   | DOM ↔ buffer bridge; match → `Range` mapping; hover lookup; input cap |
 | `extension/src/meta.js`     | Per-pattern group + "read more" URL |
 | `extension/src/content.js`  | Highlight painting, interactive tooltip, `MutationObserver` |
@@ -121,7 +121,7 @@ verified via [`extension/docs/VERIFY.md`](./extension/docs/VERIFY.md).
 
 ## Testing
 
-- **366 tests** (Vitest) — including the reference tool's own positive/negative
+- **401 tests** (Vitest) — including the reference tool's own positive/negative
   cases run against the port, jsdom tests for the DOM bridge (cross-node ranges,
   node exclusion), and ReDoS/input-cap guards.
 - **~96% line coverage** on the detection/bridge modules.

@@ -183,6 +183,38 @@ const cases = [
   ['journey-metaphor', 'The partnership is setting the stage for a merger.', 1],
   ['journey-metaphor', 'This failure underscores the importance of backups.', 1],
   ['journey-metaphor', 'The crew built a stage for the school play.', 0],
+
+  // Topic announcement ("The subject is measurement" — third-person topic labeling)
+  ['topic-announcement', 'The subject is measurement, and the obfuscated logic bypass that automation cannot finish.', 1],
+  ['topic-announcement', 'The real story is that the launch failed.', 1],
+  ['topic-announcement', 'The takeaway here is simple: test your backups.', 1],
+  ['topic-announcement', 'The topic was community governance.', 1],
+  ['topic-announcement', 'The bigger lesson is that defaults matter.', 1],
+  ['topic-announcement', 'The upshot was a full rewrite.', 1],
+  ['topic-announcement', 'The subject: measurement.', 1],
+  ['topic-announcement', 'The subject of this paper is hashing.', 0],
+  ['topic-announcement', 'She changed the subject.', 0],
+  ['topic-announcement', 'The story has a happy ending.', 0],
+  ['topic-announcement', 'The focus is on performance.', 0],
+  ['topic-announcement', 'The topics are mundane.', 0],
+
+  // Ineffability ("the X that automation cannot finish" — grandiose-negation flourish)
+  ['ineffability', 'The subject is measurement, and the obfuscated logic bypass that automation cannot finish.', 1],
+  ['ineffability', 'A bypass that no benchmark can capture.', 1],
+  ['ineffability', 'Edge cases which no tool will ever fully cover.', 1],
+  ['ineffability', 'Nuance that automation can’t capture.', 1],
+  ['ineffability', 'Details that tests cannot reach.', 1],
+  ['ineffability', 'A path that no test can cover.', 1],
+  ['ineffability', 'An interface beyond the reach of automation.', 1],
+  ['ineffability', 'Behavior beyond what any model can predict.', 1],
+  ['ineffability', 'A workflow that defies easy categorization.', 1],
+  ['ineffability', 'The root cause eludes simple measurement.', 1],
+  ['ineffability', 'Parts of the pipeline cannot be fully automated.', 1],
+  ['ineffability', 'Tests that can run in parallel.', 0],
+  ['ineffability', 'A file that tools can open.', 0],
+  ['ineffability', 'He defies gravity and expectation.', 0],
+  ['ineffability', 'The bug was beyond the reach of the original team.', 0],
+  ['ineffability', 'This content cannot be reproduced without permission.', 0],
 ];
 
 describe('new signs (post-reference additions)', () => {

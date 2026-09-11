@@ -28,6 +28,13 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Added
 
+- AI Tells: two new rhetorical-tic detectors — **topic announcements**
+  ("The subject is measurement", "the real story is…", "The takeaway here is…")
+  and **ineffability claims** (the grandiose-negation flourish that insists the
+  subject exceeds measurement: "the logic bypass that automation cannot
+  finish", "nuance that no benchmark can capture", "defies easy
+  categorization") — 58 detectors total. 401 tests (the README badge previously
+  claimed 366; the tree actually held 373 — stale badge corrected here).
 - AI Tells: a ninth page-grading signal — **antithesis / negative-parallelism
   density**. The document grade now counts "not just X but Y", "it isn't X,
   it's Y", and "X, not Y" constructions and flags them when they cluster

@@ -9,6 +9,112 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-09-11 — Topic-announcement + ineffability detectors ("The subject is measurement, and the obfuscated logic bypass that automation cannot finish")
+
+**Summary:** A user offered a two-sentence sample as a classic AI tell and asked
+why nothing fired. Traced the sentence through all 56 detectors: 0 matches,
+because every tell in it is *structural* while the engine is lexical. Captured
+the two prose-addressable halves as new detectors: `topic-announcement` and
+`ineffability`. 56 → 58 detectors; 373 → 401 tests (the README badge said 366,
+but decomposing the suite by hand — 196 `cases.js` + 6 engine invariants + 126
+`new-signs` + 8 security + 9 detect + 5 meta + 23 stats — showed HEAD actually
+held 373; the badge had gone stale and is corrected in this change).
+
+**Why:** The sample —
+
+> The subject is measurement, and the obfuscated logic bypass that automation
+> cannot finish.
+
+— contains four tells, and each slipped through a different way:
+
+1. "assumes jadx, Smali, and Frida" — `colon-triple` hard-requires a literal
+   colon; LLM prose drops the colon (near-miss, left as-is: colonless lists are
+   too noisy to flag on their own).
+2. "The subject is measurement" — third-person topic announcement; no detector
+   owned the "the subject/story/takeaway/lesson (here) is…" family. → new
+   `topic-announcement`.
+3. "the obfuscated logic bypass that automation cannot finish" — the
+   grandiose-negation flourish claiming the subject exceeds measurement; no
+   detector owned "X that automation/no tool cannot/can…". → new `ineffability`.
+4. Both sentences share a two-clause skeleton joined by ", and" with **zero
+   lexical overlap** — `echo-triad` (shared 4-grams) and `sentence-anaphora`
+   (3+ same openers, this/the skipped) are both blind to pure syntactic
+   parallelism. Deliberately *not* regexed; this is the structural layer that
+   `docs/FUTURE_WORK.md` reserves for the stylometric scorer.
+
+The vocabulary is scrubbed — no ai-vocab, hype, or pseudo-wisdom hits — which is
+exactly the "post-tell" register: clean words, formulaic shape.
+
+**What changed:**
+
+- `extension/src/patterns.js` — two new Rhetorical-tic (yellow) patterns,
+  appended after `canned-notability`:
+  - `topic-announcement` — `\bthe\s+(intensifier)?(subject|topic|theme|story|
+    takeaway|lesson|upshot)\s+(here|there|really|actually)?\s*(is|was|becomes|
+    boils down to|comes down to)` plus the colon form `\bthe\s+(noun)\s*[:?]`.
+    Precision guards: optional intensifier list (real/actual/core/central/
+    bigger/broader/larger/whole/only/simple) must sit between "the" and the
+    noun, so "the subject **of this paper** is…" (ordinary academic
+    boilerplate) can't match; "focus" is excluded entirely ("the focus is on"
+    is standard release-note English); plurals ("the topics are") excluded.
+  - `ineffability` — four bounded arms: (a) "that/which + no `<tool-noun>` +
+    bare modal" ("a bypass that no benchmark can capture"), (b) "that/which +
+    automation/static analysis/tooling/tests + **negated** modal" ("that
+    automation cannot finish" — negation required so "tests that can run in
+    parallel" stays clean), (c) "beyond the reach of / beyond what `<tool-noun>`"
+    and "defies/eludes/resists + `<abstraction>`" ("defies easy
+    categorization"), (d) "cannot be `<adverb>` `<capture-verb>`" ("cannot be
+    fully automated" — the adverb is required so copyright notices ("cannot be
+    reproduced") don't fire). All arms use bounded `{0,2}` adverb repetition —
+    linear, no backtracking hazard.
+- `extension/tests/new-signs.test.js` — +12 `topic-announcement` cases
+  (7 positive / 5 negative) and +16 `ineffability` cases (11 positive /
+  5 negative), including the user's verbatim sentence for both.
+- `extension/tests/patterns.test.js` — added both ids to the `ADDED` set in the
+  "example text trips every reference pattern exactly once" invariant (both are
+  silent on the reference `EXAMPLE`; verified below).
+- `README.md`, `extension/README.md` — 56 → 58 detectors, badge corrected to
+  the hand-decomposed true count (373 → 401; the 366 it carried was stale).
+
+**Commands:**
+
+```
+# No Node runtime in this container (verified: no node/npx/deno/bun binary), so
+# the regexes were probed with a Python mirror of the final JS patterns before
+# the edit — identical semantics for these patterns (no lookbehind, ASCII \b,
+# bounded quantifiers):
+python3 /tmp/opencode/probe.py
+#   → 28/28 case expectations pass; EXAMPLE hits: topic=0 ineffability=0
+#   → target spans: TOPIC 'The subject is', INEFF 'that automation cannot'
+# (vitest must be re-run where Node exists: cd extension && npm test  # expect 401)
+aidc-scan
+```
+
+**Verification:**
+
+- Python probe: all 28 planned cases match expected counts (12 + 16), each half
+  of the user's sentence produces its own highlight span, and both patterns are
+  silent on the reference `EXAMPLE` (keeps the exactly-once invariant green).
+- False-positive guards probed and locked in as negative cases: "tests that can
+  run in parallel", "a file that tools can open", "he defies gravity",
+  "beyond the reach of the original team", "cannot be reproduced without
+  permission", "the subject of this paper is hashing", "the focus is on
+  performance", "she changed the subject".
+- `aidc-scan`: clean on changed files (see session log).
+
+**Notes:**
+
+- No NOTICE change: both detectors are original additions, not ported from
+  Wikipedia / the reference tool / SlopDetector.
+- `stats.js` page-grading signals untouched — the ineffability claim could
+  later become a tenth *density* signal (per-1k rate) if it proves noisy as a
+  phrase hit; kept phrase-level for now to match the user's ask.
+- Remaining misses on the sample (colonless triple, ", and"-hinge syntactic
+  parallelism) are documented as the standing case for the structural layer in
+  `docs/FUTURE_WORK.md`.
+
+---
+
 ## 2026-09-01 — Detector gaps found via a real sample (contracted reframe, ai-vocab hyphen guard, antithesis-density signal)
 
 **Summary:** Investigated a GitHub issue

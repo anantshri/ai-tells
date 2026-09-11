@@ -8,16 +8,17 @@ guide. Hover a highlight to see which signal was picked and a link to read more.
 
 ## What it does
 
-- **56 detectors** in two groups — "Rhetorical tics" (yellow) and "Signs of AI
+- **58 detectors** in two groups — "Rhetorical tics" (yellow) and "Signs of AI
   writing (Wikipedia)" (blue). The core engine is ported **verbatim** from the
-  reference tool (38 detectors); 18 more were added on top — three
+  reference tool (38 detectors); 20 more were added on top — three
   Wikipedia-guide signs (copulative avoidance, vague association, canned
-  notability) and fifteen research-/community-sourced phrase detectors (chatbot
+  notability) and seventeen research-/community-sourced phrase detectors (chatbot
   pleasantries, scene-setting openers, journey metaphors, "dive into", hype
   buzzwords, formulaic conclusions, vague appeals to research, corporate
   buzzwords, AI fiction clichés, "something for everyone", the cataphoric teaser,
-  superlative hook openers, corporate verb inflation, hedge stacking, and
-  pseudo-wisdom filler) — and the vocabulary/chatbot-leftover detectors
+  superlative hook openers, corporate verb inflation, hedge stacking,
+  pseudo-wisdom filler, topic announcements, and ineffability claims) — and the
+  vocabulary/chatbot-leftover detectors
   were extended with
   study-validated words and newer markup artifacts. Detector extensions from
   SlopDetector's thresholded pattern research are noted in
@@ -50,7 +51,7 @@ back onto a DOM `Range` (which may span nodes). `src/content.js` paints those
 ranges and resolves hovers via caret hit-testing back through the buffer map.
 
 ```
-src/patterns.js   detector engine (56 patterns + factories + dedup); 38 ported verbatim
+src/patterns.js   detector engine (58 patterns + factories + dedup); 38 ported verbatim
 src/meta.js       per-pattern group + "read more" URL
 src/detect.js     DOM <-> buffer bridge, match -> Range mapping, hover lookup
 src/content.js    highlight painting, interactive tooltip, MutationObserver

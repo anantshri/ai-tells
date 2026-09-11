@@ -521,6 +521,18 @@ const patterns = [
     name: 'Canned notability',
     description: 'Boilerplate significance-signalling: \u201cmaintains an active social media presence\u201d, \u201cfeatured in local/regional media outlets\u201d, \u201cgarnered widespread coverage / acclaim\u201d.',
     find: makeRegexFinder(/\bactive\s+(?:social\s+media|online)\s+presence\b|\bmaintains?\s+an?\s+active\s+(?:social\s+media\s+|online\s+)?presence\b|\bfeatured\s+in\s+(?:various\s+|numerous\s+|several\s+|local\s+|regional\s+|national\s+|multiple\s+)*(?:media\s+outlets|news\s+outlets|publications)\b|\b(?:garner(?:ed|ing)?|receiv(?:ed|ing)|gain(?:ed|ing))\s+(?:significant\s+|widespread\s+|considerable\s+|critical\s+)*(?:media\s+)?(?:coverage|acclaim|recognition|attention)\b/gi)
+  },
+  {
+    id: 'topic-announcement',
+    name: '“The subject is …”',
+    description: 'Third-person topic announcements: “the subject / topic / theme / story / takeaway / lesson / upshot (here) is …”, with optional intensifiers (“the real story is”) and the colon form (“The subject: measurement”). The prose pauses to label its own subject in the abstract instead of doing the thing. The academic “the subject of this paper is …” (of-phrase between) and “the focus is on …” are deliberately not matched.',
+    find: makeRegexFinder(/\bthe\s+(?:(?:real|actual|core|central|bigger|broader|larger|whole|only|simple)\s+)?(?:subject|topic|theme|story|takeaway|lesson|upshot)\s+(?:here\s+|there\s+|really\s+|actually\s+)?(?:is|was|becomes?|boils\s+down\s+to|comes\s+down\s+to)\b|\bthe\s+(?:subject|topic|theme|story|takeaway|lesson|upshot)\s*[:?]/gi)
+  },
+  {
+    id: 'ineffability',
+    name: '“That no tool can capture”',
+    description: 'Grandiose-negation flourishes insisting the subject exceeds measurement: “the logic bypass that automation cannot finish”, “nuance that no benchmark can capture”, “beyond the reach of automation”, “defies easy categorization”, “cannot be fully automated”. A sweeping negative claim doing the work a concrete limit should do. Bare modals (“tests that can run”) and ordinary negatives without the adverb (“cannot be reproduced”) are left alone.',
+    find: makeRegexFinder(/\b(?:that|which)\s+(?:(?:no|hardly\s+any)\s+(?:one|human|tool|tools|tooling|test|tests|suite|benchmark|model|script|heuristic|automation|reviewer)\s+(?:can|could|will|would)(?:\s+(?:ever|possibly|really|fully)){0,2}|(?:automation|static\s+analysis|tooling|tests?)\s+(?:cannot|can['’]t|can\s+not|can\s+never|could\s+not|couldn['’]t|could\s+never|will\s+not|will\s+never|won['’]t|would\s+not|wouldn['’]t|would\s+never)(?:\s+(?:ever|possibly|really|fully)){0,2})\b|\bbeyond\s+(?:the\s+reach\s+of|what)\s+(?:any\s+|all\s+|our\s+)?(?:tool|tools|tooling|automation|benchmark|model|test|tests|script|human|reviewer|static\s+analysis)\b|\b(?:defies|eludes?|resists?)\s+(?:easy\s+|simple\s+|casual\s+|any\s+)?(?:categor(?:y|ization|isation)|summar(?:y|ies)|definition|measurement|quantification|automation|analysis|explanation|reduction)\b|\b(?:cannot|can['’]t)\s+be\s+(?:fully|truly|completely|adequately|exhaustively)\s+(?:captured|reduced|automated|measured|replicated|replaced|summarized|summarised|enumerated)\b/gi)
   }
 ];
 
