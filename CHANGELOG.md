@@ -28,6 +28,31 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Added
 
+- AI Tells: five new detectors from a coverage audit against five external
+  AI-ism catalogues (Wikipedia's "Signs of AI writing"; ScriptGrain's counted
+  AI-isms list; ContentBeta's overused-word blacklist; Hana LaRock's
+  ChatGPT-isms; Oreate AI's AI-isms overview) — **transition-word openers**
+  (sentence-initial "Moreover," / "Furthermore," / "Additionally,", previously
+  page-grade-only), **shaping the debate** ("has shaped conversations about",
+  Wikipedia:ITSHAPESDISCUSSIONS), **identified by sources** ("his parliamentary
+  biography records that…", "is listed in", Wikipedia's primary/tertiary-source
+  sign), **literary-register slop** ("that could only be described as", "its
+  own form of grace", "possessed of"), and **staccato sentence fragments**
+  ("Focused. Aligned. Measurable.", "No theory. No fluff. Just execution.") —
+  63 detectors total. 491 tests; README badge updated (it matched the previous
+  tree exactly).
+- AI Tells: extended eight detectors with signs from the same audit —
+  `note-that` ("bear in mind"), `scene-setting` (bare "in today's world", "in an
+  age where", "since the dawn of time", "in this day and age"), `landscape`
+  (bare "digital / competitive landscape"), `heres-the-twist` ("here's the
+  deal/truth/story", "the hard truth is"), `hedge-stack` ("it is likely that",
+  "there is a possibility that", "it may be the case that", "Perhaps X, perhaps
+  Y"), `pseudo-wisdom` ("double-edged sword", "strike a balance"), `not-just`
+  ("not because X, but because Y", "Forget X. Think Y.", "Less X, more Y"), and
+  `ai-leftovers` (the trailing "Would you like me to…", unfilled placeholders
+  "[insert year]"/"[Name]"/"TBD", and raw pasted Markdown — `**bold**`,
+  `## heading`, `\[1\]`). Read-more links now also point at ScriptGrain and
+  ContentBeta; Credits and NOTICE credit all five sources.
 - AI Tells: two new rhetorical-tic detectors — **topic announcements**
   ("The subject is measurement", "the real story is…", "The takeaway here is…")
   and **ineffability claims** (the grandiose-negation flourish that insists the

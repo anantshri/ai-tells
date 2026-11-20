@@ -167,6 +167,59 @@ function makeAnaphoraFinder({ minRun = 3 } = {}) {
   };
 }
 
+// Flags runs of consecutive ultra-short sentences -- "Focused. Aligned.
+// Measurable." / "No theory. No fluff. Just execution." The badge counts the
+// fragments. Known abbreviations ("Dr.", "Inc.") break runs instead of
+// joining them, and tokens without letters (section numbers) are ignored.
+function makeStaccatoFinder({ minRun = 3, maxWords = 2 } = {}) {
+  const ABBR = /(?:^|\s)(?:(?:Dr|Mr|Mrs|Ms|Prof|Sr|Jr|St|Inc|Ltd|Co|Corp|vs|etc|approx|est|fig|vol)|[A-Za-z])\.\s*$/i;
+  const SENT = /[^.!?\n]+[.!?]+/g;
+  return function (text) {
+    const found = [];
+    let runStart = -1;
+    let runEnd = -1;
+    let runCount = 0;
+    const flush = () => {
+      if (runCount >= minRun) {
+        let start = runStart;
+        let end = runEnd;
+        while (start < end && /\s/.test(text[start])) start += 1;
+        while (end > start && /\s/.test(text[end - 1])) end -= 1;
+        found.push({
+          start,
+          end,
+          count: runCount,
+          badge: String(runCount),
+          badgeTitle: runCount + ' staccato fragments in a row'
+        });
+      }
+      runCount = 0;
+    };
+    for (const m of text.matchAll(SENT)) {
+      const token = m[0];
+      if (ABBR.test(token) || !/[A-Za-z]/.test(token)) {
+        flush();
+        continue;
+      }
+      if ((token.match(/\S+/g) || []).length > maxWords) {
+        flush();
+        continue;
+      }
+      const start = m.index;
+      const end = m.index + token.length;
+      if (runCount === 0) runStart = start;
+      else if (start - runEnd > 3) {
+        flush();
+        runStart = start;
+      }
+      runEnd = end;
+      runCount += 1;
+    }
+    flush();
+    return found;
+  };
+}
+
 // Patterns in this group are adapted from Wikipedia's "Signs of AI writing"
 // guide: https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
 const WIKI_GROUP = 'Signs of AI writing (Wikipedia)';
@@ -313,8 +366,8 @@ const patterns = [
   {
     id: 'heres-the-twist',
     name: '“Here’s the twist”',
-    description: 'The stage-managed reveal: “here’s the twist”, “here’s the thing”, “here’s the catch / kicker / rub”, “here’s the first example:”.',
-    find: makeRegexFinder(/\bhere(?:['’]s|\s+is)\s+(?:the|a|my|one)\s+(?:twist|thing|catch|kicker|rub|problem|first|second|third|next|recent|real|best|worst|surprising|interesting|key|important)\b[\w\s-]{0,20}[:.]/gi)
+    description: 'The stage-managed reveal: “here’s the twist”, “here’s the thing”, “here’s the catch / kicker / rub / deal / truth / story”, “here’s the first example:”, plus the blunt-opener “the hard truth is …”.',
+    find: makeRegexFinder(/\bhere(?:['’]s|\s+is)\s+(?:the|a|my|one)\s+(?:twist|thing|catch|kicker|rub|problem|deal|truth|story|solution|answer|first|second|third|next|recent|real|best|worst|surprising|interesting|key|important)\b[\w\s-]{0,20}[:.]|\bthe\s+hard\s+(?:truth|reality)\s+(?:is|was)\b/gi)
   },
   {
     id: 'x-is-dead',
@@ -343,8 +396,8 @@ const patterns = [
   {
     id: 'scene-setting',
     name: '“In today’s fast-paced world”',
-    description: 'Throat-clearing openers that set an epochal scene: “in today’s fast-paced / digital / ever-changing world”, “in a world where”, “in the realm of”, “when it comes to”, “in an era of”, “in the digital age” — plus the engagement warm-ups “picture this”, “imagine a world where”, “it’s no secret that”, “let’s face it”, “now more than ever”, and “as technology continues to…”.',
-    find: makeRegexFinder(/\bin\s+(?:today['’]s|a|the|this|our)\s+(?:fast-paced|ever-(?:changing|evolving)|rapidly\s+(?:changing|evolving)|digital|modern|competitive|hyper-connected)\s+(?:world|age|era|landscape|society|market|economy)\b|\bin\s+a\s+world\s+where\b|\bin\s+the\s+realm\s+of\b|\bwhen\s+it\s+comes\s+to\b|\bin\s+an?\s+era\s+of\b|\bin\s+the\s+digital\s+age\b|(?:^|[.!?]\s+)picture\s+this\b|\bimagine\s+a\s+world\s+(?:where|in)\b|\bit['’]s\s+no\s+secret\b|\blet['’]s\s+face\s+it\b|\bnow\s+more\s+than\s+ever\b|\bas\s+technology\s+continues\b/gi)
+    description: 'Throat-clearing openers that set an epochal scene: “in today’s fast-paced / digital / ever-changing world”, “in a world where”, “in the realm of”, “when it comes to”, “in an era of”, “in the digital age”, the bare “in today’s world”, “in an age where”, “in this day and age”, “since the dawn of time” — plus the engagement warm-ups “picture this”, “imagine a world where”, “it’s no secret that”, “let’s face it”, “now more than ever”, and “as technology continues to…”.',
+    find: makeRegexFinder(/\bin\s+(?:today['’]s|a|the|this|our)\s+(?:fast-paced|ever-(?:changing|evolving)|rapidly\s+(?:changing|evolving)|digital|modern|competitive|hyper-connected)\s+(?:world|age|era|landscape|society|market|economy)\b|\bin\s+a\s+world\s+where\b|\bin\s+the\s+realm\s+of\b|\bwhen\s+it\s+comes\s+to\b|\bin\s+an?\s+era\s+of\b|\bin\s+the\s+digital\s+age\b|\bin\s+today['’]s\s+world\b|\bin\s+an?\s+age\s+where\b|\bin\s+this\s+day\s+and\s+age\b|\bsince\s+the\s+dawn\s+of\s+time\b|(?:^|[.!?]\s+)picture\s+this\b|\bimagine\s+a\s+world\s+(?:where|in)\b|\bit['’]s\s+no\s+secret\b|\blet['’]s\s+face\s+it\b|\bnow\s+more\s+than\s+ever\b|\bas\s+technology\s+continues\b/gi)
   },
   {
     id: 'journey-metaphor',
@@ -415,14 +468,14 @@ const patterns = [
   {
     id: 'hedge-stack',
     name: 'Hedge stacking',
-    description: 'Unfalsifiable qualifier phrases — “it could be argued that”, “may potentially”, “can sometimes be”, “to some extent”, “generally speaking”, “in certain contexts”, “there is no one-size-fits-all”. One hedge is honest writing; a stack of them drains the claim of any content. Common softeners like “tends to” or “arguably” alone are left alone.',
-    find: makeRegexFinder(/\b(?:it\s+could\s+be\s+argued(?:\s+that)?|one\s+could\s+(?:reasonably\s+)?argue|some\s+might\s+(?:say|argue|contend)|it\s+is\s+often\s+the\s+case\s+that|(?:may|might)\s+potentially|can\s+sometimes\s+be|to\s+some\s+extent|generally\s+speaking|in\s+certain\s+contexts|no\s+one-size-fits-all)\b/gi)
+    description: 'Unfalsifiable qualifier phrases — “it could be argued that”, “may potentially”, “can sometimes be”, “to some extent”, “generally speaking”, “in certain contexts”, “there is no one-size-fits-all” — plus the uncertainty formulas “it is likely that”, “there is a possibility that”, “it may be the case that” and the “Perhaps X, perhaps Y” hedging pair. One hedge is honest writing; a stack of them drains the claim of any content. Common softeners like “tends to” or “arguably” alone are left alone.',
+    find: makeRegexFinder(/\b(?:it\s+could\s+be\s+argued(?:\s+that)?|one\s+could\s+(?:reasonably\s+)?argue|some\s+might\s+(?:say|argue|contend)|it\s+is\s+often\s+the\s+case\s+that|(?:may|might)\s+potentially|can\s+sometimes\s+be|to\s+some\s+extent|generally\s+speaking|in\s+certain\s+contexts|no\s+one-size-fits-all)\b|\bit\s+(?:is|was)\s+(?:likely|probable)\s+that\b|\bthere\s+(?:is|was|are|were)\s+a\s+(?:possibility|probability)\s+that\b|\bit\s+may\s+(?:well\s+)?be\s+the\s+case\s+that\b|\b(?:perhaps|maybe)\b[^.!?\n;,]{1,60},\s*(?:perhaps|maybe)\b/gi)
   },
   {
     id: 'pseudo-wisdom',
     name: 'Pseudo-wisdom filler',
-    description: 'Sentences that sound like insight and cannot be wrong — “the key is to find the right balance”, “context is everything”, “true growth comes from within”, “it depends on your specific needs”, “success comes down to consistency”. They pass every grammar check while committing to nothing; the deletion test is the measure.',
-    find: makeRegexFinder(/\bthe\s+key\s+is\s+to\s+find\s+the\s+right\s+balance\b|\b(?:finding|striking)\s+the\s+right\s+balance\b|\btrue\s+\w+\s+comes\s+from\s+within\b|\b(?:context|timing|location|execution|consistency|distribution|positioning)\s+is\s+everything\b|\bthe\s+best\s+approach\s+is\s+the\s+one\s+that\s+works\s+for\s+you\b|\bit\s+(?:all\s+)?(?:comes\s+down\s+to|depends\s+on)\s+your\s+(?:specific\s+)?(?:needs|use\s+case|situation|context)\b|\bsuccess\s+(?:ultimately\s+)?comes\s+down\s+to\b/gi)
+    description: 'Sentences that sound like insight and cannot be wrong — “the key is to find the right balance”, “context is everything”, “true growth comes from within”, “it depends on your specific needs”, “success comes down to consistency”, the balancing-cliché “strike a balance” and the “double-edged sword” framing. They pass every grammar check while committing to nothing; the deletion test is the measure.',
+    find: makeRegexFinder(/\bthe\s+key\s+is\s+to\s+find\s+the\s+right\s+balance\b|\b(?:finding|striking)\s+the\s+right\s+balance\b|\btrue\s+\w+\s+comes\s+from\s+within\b|\b(?:context|timing|location|execution|consistency|distribution|positioning)\s+is\s+everything\b|\bthe\s+best\s+approach\s+is\s+the\s+one\s+that\s+works\s+for\s+you\b|\bit\s+(?:all\s+)?(?:comes\s+down\s+to|depends\s+on)\s+your\s+(?:specific\s+)?(?:needs|use\s+case|situation|context)\b|\bsuccess\s+(?:ultimately\s+)?comes\s+down\s+to\b|\bdouble[-\s]edged\s+sword\b|\bstrik(?:e|es|ing)\s+a\s+balance\b/gi)
   },
   {
     id: 'ai-vocab',
@@ -435,15 +488,15 @@ const patterns = [
     id: 'not-just',
     group: WIKI_GROUP,
     name: 'Negative parallelisms',
-    description: 'Negative parallelisms: \u201cnot just X, but (also) Y\u201d, \u201cnot only \u2026 but \u2026\u201d, the \u201cit\u2019s not X \u2014 it\u2019s Y\u201d contrast, and the trailing \u201cX is A, not B\u201d antithesis (\u201ca hypothesis, not a control\u201d) LLMs love as a closing kicker.',
-    find: makeRegexFinder(/\bnot\s+(?:just|only|merely|simply)\s+[^.!?\n;]*?\bbut(?:\s+also)?\b|\b(?:it|this|that)(?:(?:['\u2019]s|\s+(?:is|was))\s+not|\s+(?:is|are|was|were)n['\u2019]t)\s+[^.!?\n,;\u2014\u2013]{1,60}[,;\u2014\u2013]\s*(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\b|\b(?:is|are|was|were|be|been|being|['\u2019]s|remains?|stays?|becomes?|became)\s+[^.!?\n,;:\u2014\u2013]{1,50}?,\s+not\s+(?:a|an|the)\s+[^.!?\n]{1,60}?(?=[.!?]|$)/gi)
+    description: 'Negative parallelisms: \u201cnot just X, but (also) Y\u201d, \u201cnot only \u2026 but \u2026\u201d, the \u201cit\u2019s not X \u2014 it\u2019s Y\u201d contrast, and the trailing \u201cX is A, not B\u201d antithesis (\u201ca hypothesis, not a control\u201d) LLMs love as a closing kicker \u2014 plus the marketing variants \u201cnot because X, but because Y\u201d, \u201cForget X. Think Y.\u201d and \u201cLess X, more Y.\u201d',
+    find: makeRegexFinder(/\bnot\s+(?:just|only|merely|simply)\s+[^.!?\n;]*?\bbut(?:\s+also)?\b|\b(?:it|this|that)(?:(?:['\u2019]s|\s+(?:is|was))\s+not|\s+(?:is|are|was|were)n['\u2019]t)\s+[^.!?\n,;\u2014\u2013]{1,60}[,;\u2014\u2013]\s*(?:it|this|that)(?:['\u2019]s|\s+(?:is|was))\b|\b(?:is|are|was|were|be|been|being|['\u2019]s|remains?|stays?|becomes?|became)\s+[^.!?\n,;:\u2014\u2013]{1,50}?,\s+not\s+(?:a|an|the)\s+[^.!?\n]{1,60}?(?=[.!?]|$)|\bnot\s+because\b[^.!?\n]{0,80}?(?:[.!?]\s*)?but\s+because\b|(?:^|[.!?\u2013\u2014]\s+|\n)Forget\s+[^.!?\n;]{1,40}[.;]\s*(?:think|focus\s+on|start\s+with|begin\s+with)\b|\bless\s+[^,.;:\n\u2013\u2014]{1,30},\s+more\s+[^,.;:\n\u2013\u2014]{1,30}\b/gi)
   },
   {
     id: 'note-that',
     group: WIKI_GROUP,
     name: '\u201cIt\u2019s important to note\u201d',
-    description: 'Didactic hedging: \u201cit is important to note that\u201d, \u201cit\u2019s worth noting\u201d, \u201cit should be noted\u201d, plus the \u201cworth pausing / considering / asking\u201d family.',
-    find: makeRegexFinder(/\bit(?:['\u2019]s|\s+(?:is|was))\s+(?:also\s+)?(?:important|worth|crucial|essential|vital)\s+(?:to\s+(?:note|remember|understand|recognize|mention|pause|consider|ask)|noting|mentioning|remembering|pausing|considering|asking)\b(?:\s+that\b)?|\bit\s+should\s+be\s+noted\b/gi)
+    description: 'Didactic hedging: \u201cit is important to note that\u201d, \u201cit\u2019s worth noting\u201d, \u201cit should be noted\u201d, the \u201cworth pausing / considering / asking\u201d family, plus \u201cbear in mind\u201d.',
+    find: makeRegexFinder(/\bit(?:['\u2019]s|\s+(?:is|was))\s+(?:also\s+)?(?:important|worth|crucial|essential|vital)\s+(?:to\s+(?:note|remember|understand|recognize|mention|pause|consider|ask)|noting|mentioning|remembering|pausing|considering|asking)\b(?:\s+that\b)?|\bit\s+should\s+be\s+noted\b|\bbear(?:s|ing)?\s+(?:this\s+)?in\s+mind\b/gi)
   },
   {
     id: 'testament',
@@ -463,8 +516,8 @@ const patterns = [
     id: 'landscape',
     group: WIKI_GROUP,
     name: '\u201cEver-evolving landscape\u201d',
-    description: 'Scene-setting boilerplate: \u201cthe ever-evolving / changing / shifting landscape\u201d, \u201cin today\u2019s fast-paced world\u201d.',
-    find: makeRegexFinder(/\b(?:ever-)?(?:evolving|changing|shifting)\s+landscape\b|\bin\s+today['\u2019]s\s+(?:fast-paced|ever-changing|ever-evolving|digital|modern|competitive)\s+\w+/gi)
+    description: 'Scene-setting boilerplate: \u201cthe ever-evolving / changing / shifting landscape\u201d, the bare \u201cdigital / competitive / business landscape\u201d, and \u201cin today\u2019s fast-paced world\u201d.',
+    find: makeRegexFinder(/\b(?:ever-)?(?:evolving|changing|shifting)\s+landscape\b|\bin\s+today['\u2019]s\s+(?:fast-paced|ever-changing|ever-evolving|digital|modern|competitive)\s+\w+|\b(?:digital|competitive|business|tech(?:nological)?|political|cultural|media|corporate)\s+landscape\b/gi)
   },
   {
     id: 'vague-experts',
@@ -498,8 +551,8 @@ const patterns = [
     id: 'ai-leftovers',
     group: WIKI_GROUP,
     name: 'Chatbot leftovers',
-    description: 'Artifacts pasted straight from a chatbot: \u201cas an AI language model\u201d, \u201cas of my last update\u201d, \u201cknowledge cutoff\u201d, plus markup debris across models \u2014 ChatGPT (\u201coaicite\u201d, \u201ccontentReference\u201d, \u201cturn0search\u201d), Gemini (\u201c[cite: 1]\u201d, \u201cstart_span\u201d), Grok (\u201cgrok_render_citation_card_json\u201d), Perplexity (\u201cppl-ai-file-upload\u201d), \u201c:::writing\u201d, and \u201cutm_source=\u201d tracking parameters.',
-    find: makeRegexFinder(/\bas\s+an\s+ai(?:\s+language)?\s+model\b|\bas\s+of\s+my\s+last\s+(?:update|training)\b|\bknowledge\s+cutoff\b|\bI\s+(?:cannot|can['\u2019]t|do\s+not|don['\u2019]t)\s+(?:browse\s+the\s+internet|access\s+real-?time)\b|contentReference|oaicite|turn0(?:search|news|image)\d*|attributableIndex|utm_source=|grok_render_citation_card_json|grok_card|ppl-ai-file-upload|attached_file|:::writing|\bstart_span\b|\bend_span\b|\[cite:\s*\d+\]/gi)
+    description: 'Artifacts pasted straight from a chatbot: \u201cas an AI language model\u201d, \u201cas of my last update\u201d, \u201cknowledge cutoff\u201d, the trailing offer \u201cwould you like me to\u2026\u201d, unfilled placeholders (\u201c[insert year]\u201d, \u201c[Name]\u201d, \u201cTBD\u201d), raw Markdown (\u201c**bold**\u201d, \u201c## heading\u201d, \u201c\\[1\\]\u201d), plus markup debris across models \u2014 ChatGPT (\u201coaicite\u201d, \u201ccontentReference\u201d, \u201cturn0search\u201d), Gemini (\u201c[cite: 1]\u201d, \u201cstart_span\u201d), Grok (\u201cgrok_render_citation_card_json\u201d), Perplexity (\u201cppl-ai-file-upload\u201d), \u201c:::writing\u201d, and \u201cutm_source=\u201d tracking parameters.',
+    find: makeRegexFinder(/\bas\s+an\s+ai(?:\s+language)?\s+model\b|\bas\s+of\s+my\s+last\s+(?:update|training)\b|\bknowledge\s+cutoff\b|\bI\s+(?:cannot|can['\u2019]t|do\s+not|don['\u2019]t)\s+(?:browse\s+the\s+internet|access\s+real-?time)\b|\bwould\s+you\s+like\s+me\s+to\b|(?<=\s)\[\s*insert\s+[^\]\n]{1,40}\s*\]|(?<=\s)\[\s*(?:name|date|year|month|title|topic|subject|company|client|location|amount|number|url|link)\s*\]|(?<=\s)TBD\b|\*\*[^*\n]{0,79}[A-Za-z][^*\n]{0,79}\*\*|(?:^|\n)#{1,6}\s+\S|(?<=\s)\\\[\d+\\\]|contentReference|oaicite|turn0(?:search|news|image)\d*|attributableIndex|utm_source=|grok_render_citation_card_json|grok_card|ppl-ai-file-upload|attached_file|:::writing|\bstart_span\b|\bend_span\b|\[cite:\s*\d+\]/gi)
   },
   {
     id: 'copulative-avoidance',
@@ -533,6 +586,38 @@ const patterns = [
     name: '“That no tool can capture”',
     description: 'Grandiose-negation flourishes insisting the subject exceeds measurement: “the logic bypass that automation cannot finish”, “nuance that no benchmark can capture”, “beyond the reach of automation”, “defies easy categorization”, “cannot be fully automated”. A sweeping negative claim doing the work a concrete limit should do. Bare modals (“tests that can run”) and ordinary negatives without the adverb (“cannot be reproduced”) are left alone.',
     find: makeRegexFinder(/\b(?:that|which)\s+(?:(?:no|hardly\s+any)\s+(?:one|human|tool|tools|tooling|test|tests|suite|benchmark|model|script|heuristic|automation|reviewer)\s+(?:can|could|will|would)(?:\s+(?:ever|possibly|really|fully)){0,2}|(?:automation|static\s+analysis|tooling|tests?)\s+(?:cannot|can['’]t|can\s+not|can\s+never|could\s+not|couldn['’]t|could\s+never|will\s+not|will\s+never|won['’]t|would\s+not|wouldn['’]t|would\s+never)(?:\s+(?:ever|possibly|really|fully)){0,2})\b|\bbeyond\s+(?:the\s+reach\s+of|what)\s+(?:any\s+|all\s+|our\s+)?(?:tool|tools|tooling|automation|benchmark|model|test|tests|script|human|reviewer|static\s+analysis)\b|\b(?:defies|eludes?|resists?)\s+(?:easy\s+|simple\s+|casual\s+|any\s+)?(?:categor(?:y|ization|isation)|summar(?:y|ies)|definition|measurement|quantification|automation|analysis|explanation|reduction)\b|\b(?:cannot|can['’]t)\s+be\s+(?:fully|truly|completely|adequately|exhaustively)\s+(?:captured|reduced|automated|measured|replicated|replaced|summarized|summarised|enumerated)\b/gi)
+  },
+  {
+    id: 'transition-openers',
+    name: 'Transition-word openers',
+    description: 'Sentence-initial \u201cMoreover,\u201d, \u201cFurthermore,\u201d, \u201cAdditionally,\u201d, \u201cIn addition,\u201d and friends \u2014 mechanical connective glue stapled between paragraphs that are not actually linked. One instance can be ordinary formal writing; a page that leans on them is the tell.',
+    find: makeRegexFinder(/(?:^|[.!?\u2013\u2014]\s+|\n)(?:Moreover|Furthermore|Additionally|Consequently|Notably|Importantly|In\s+addition)\s*,/gi)
+  },
+  {
+    id: 'shapes-discussions',
+    group: WIKI_GROUP,
+    name: 'Shaping the debate',
+    description: 'Claims that the subject influences wider discourse: \u201chas shaped conversations about\u201d, \u201cgenerated debate about\u201d, \u201cprompted broader reflection on\u201d, \u201ccontributed to wider discussions about\u201d \u2014 situating a mundane topic inside grand ongoing discussions.',
+    find: makeRegexFinder(/\b(?:has|have|had)\s+(?:\w+\s+){0,3}?shaped\s+(?:\w+\s+){0,2}?(?:conversations?|discussions?|debates?|discourse|reflection)\s+(?:about|around|on|over|regarding|surrounding)\b|\b(?:generated|prompted|sparked|fueled|fuelled|ignited|stoked|started)\s+(?:\w+\s+){0,2}?(?:debates?|discourse|discussions?|conversations|reflection)\s+(?:about|around|on|over|regarding|surrounding)\b|\bcontribut(?:e|es|ed|ing)\s+to\s+(?:the\s+|wider\s+|broader\s+|larger\s+|ongoing\s+|emerging\s+)?(?:discussions?|debates?|conversations?|discourse)\s+(?:about|around|on|over|regarding|surrounding)\b/gi)
+  },
+  {
+    id: 'primary-source',
+    group: WIKI_GROUP,
+    name: 'Identified by sources',
+    description: 'Over-emphasis on primary or tertiary sources identifying the subject: \u201chis personal website identifies him as\u2026\u201d, \u201chis parliamentary biography records that\u2026\u201d, \u201cis listed in\u201d, \u201cher professional profile lists\u201d \u2014 the existence and classification of the source treated as the fact.',
+    find: makeRegexFinder(/\b(?:personal|official|professional|parliamentary|company|corporate|campaign|faculty|staff|alumni)\s+(?:websites?|profiles?|biograph(?:y|ies)|bios?|pages?)\s+(?:identif(?:y|ies|ied)|lists?|listed|describes?|described|records?|recorded|confirms?|confirmed)\b|\b(?:records?|databases?|listings?|filings?|registers?|registries?)\s+(?:identif(?:y|ies|ied)|lists?|listed|describes?|described)\b|\bis\s+listed\s+in\b|\b(?:his|her|their|its)\s+(?:professional\s+|public\s+)?profile\s+lists\b/gi)
+  },
+  {
+    id: 'literary-slop',
+    name: 'Literary register slop',
+    description: 'The trying-too-hard-to-sound-like-a-novelist set: \u201cwhat could only be described as\u201d, \u201cits own form of grace\u201d, \u201csomething approaching a\u2026\u201d, \u201cperhaps enough after all\u201d, \u201cpossessed of\u201d, \u201ca constellation of\u201d, \u201cthe very texture of\u201d, \u201cthe practiced resignation of\u201d.',
+    find: makeRegexFinder(/\b(?:what|that|which)\s+could\s+only\s+be\s+described\s+as\b|\bits?\s+own\s+(?:quiet\s+|strange\s+|peculiar\s+|odd\s+|particular\s+)?form\s+of\s+(?:grace|dignity|poetry|elegance|humou?r|justice)\b|\bpossessed\s+of\b|\bthe\s+very\s+texture\s+of\b|\b(?:a|the)\s+constellation\s+of\b|\bthe\s+practiced\s+resignation\s+of\b|\bperhaps\s+enough\s+after\s+all\b|\bsomething\s+approaching\s+(?:a|an|the|genuine|real|actual)\b/gi)
+  },
+  {
+    id: 'staccato-fragments',
+    name: 'Staccato sentence fragments',
+    description: 'Three or more consecutive ultra-short sentences \u2014 \u201cFocused. Aligned. Measurable.\u201d or \u201cNo theory. No fluff. Just execution.\u201d \u2014 the drumbeat cadence LLM marketing copy uses for punch. The badge counts the fragments.',
+    find: makeStaccatoFinder({ minRun: 3, maxWords: 2 })
   }
 ];
 

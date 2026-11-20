@@ -58,6 +58,8 @@ describe('engine invariants', () => {
       'cataphoric-teaser', 'hook-opener',
       'verb-inflation', 'hedge-stack', 'pseudo-wisdom',
       'topic-announcement', 'ineffability',
+      'transition-openers', 'shapes-discussions', 'primary-source',
+      'literary-slop', 'staccato-fragments',
     ]);
     const all = new Set(patterns.map((p) => p.id));
     const { matches } = collectMatches(EXAMPLE, all);

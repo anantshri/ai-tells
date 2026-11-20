@@ -96,3 +96,36 @@ Constitution and the Bible as "AI". A responsible implementation must:
 - **More phrase packs** — the research surfaced language-specific "translationese"
   slop packs (slop-gate) and larger fiction-slop dictionaries that could be added
   behind toggles if there's demand.
+
+## Deferred from the 2026-11-20 five-source coverage audit
+
+The audit against Wikipedia/ScriptGrain/ContentBeta/Oreate/HanaLaRock landed
+5 detectors + 8 extensions (see DETAILED_CHANGELOG). These identified signs
+were deliberately left out:
+
+- **Density-gated highlight versions of the page-grade signals** — em-dash
+  overuse, semicolon chains (3+ clauses/sentence), "The result? / And the X?"
+  fragment Q&A kickers, "Forget X. Think Y."-style pattern runs already fire or
+  could fire as highlights, but only when the page-level rate exceeds the
+  stats thresholds (the FUTURE_WORK "promote signals into density-gated
+  highlight detectors" idea). Highest-value candidate: a gated em-dash
+  highlight (Wikipedia historical §13.5, ScriptGrain shape, Oreate all list
+  it; `signalEmDash` already computes the rate).
+- **Rhythm meters as stats signals** — no-contractions-in-300-words and
+  no-sentence-under-8-words (ScriptGrain's two paragraph-level rhythm meters;
+  burstiness covers the third). Model-free, O(n); no single signal convicts.
+- **Marketing word-list expansion** — ContentBeta's bare-word tail (resonate,
+  elevate, harness, unlock (bare), supercharge/turbocharge/skyrocket/unleash,
+  secret sauce/secret weapon, in a nutshell, paramount, stay tuned, sneak peek)
+  and Oreate's "symphony". Deliberately kept out of `ai-vocab`, whose current
+  list is validated by post-ChatGPT frequency studies; these are catalogue-
+  asserted only. Ship them as a separate opt-in pack if there's demand.
+- **Documented skips** (identified by the sources, judged unflaggable per-span):
+  qualifier/modifier density (Hana §1 — "very/really/quite" light up every
+  page), passive voice (Hana §3 — Yoast-style heuristic, stats territory),
+  neutral/balanced tone (Hana §2), unnecessary appositive definitions (Hana
+  §10), bare high-frequency words crucial/essential/notable/considerable
+  (Hana §6, ContentBeta), "the former… the latter" elegant variation
+  (Wikipedia historical §13.8), emoji injection (Oreate — legitimate emoji use
+  is too common), and Wikipedia-only signs (citation/DOI checks, edit
+  summaries, AfC, user pages).

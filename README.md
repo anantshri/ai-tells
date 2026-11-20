@@ -8,7 +8,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4.svg?logo=googlechrome&logoColor=white)](./extension/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-401%20passing-brightgreen.svg)](./extension/tests)
+[![Tests](https://img.shields.io/badge/tests-491%20passing-brightgreen.svg)](./extension/tests)
 [![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen.svg)](#testing)
 [![Zero runtime deps](https://img.shields.io/badge/runtime%20deps-0-success.svg)](./extension/package.json)
 
@@ -35,7 +35,7 @@ guide, word lists validated by post-ChatGPT frequency studies, and a batch of
 
 ## Features
 
-- **58 detectors** in two groups — *Rhetorical tics* (yellow) and *Signs of AI
+- **63 detectors** in two groups — *Rhetorical tics* (yellow) and *Signs of AI
   writing (Wikipedia)* (blue) — including research-backed phrase clichés and a
   vocabulary list validated by post-ChatGPT word-frequency studies.
 - **No DOM mutation** — highlights are painted with the
@@ -45,7 +45,7 @@ guide, word lists validated by post-ChatGPT frequency studies, and a batch of
   and links to the source (Wikipedia guide section, or the original tool).
 - **Per-site allowlist** — opt a site in and it auto-scans on load and re-scans
   as the page changes; everywhere else, scan on demand from the popup.
-- **Toggle any detector** — 58 individually switchable; the noisy `colon-triple`
+- **Toggle any detector** — 63 individually switchable; the noisy `colon-triple`
   ships off by default.
 - **Private & self-contained** — everything runs locally, **zero runtime
   dependencies**, no network calls, nothing leaves your browser.
@@ -97,7 +97,7 @@ into one buffer + offset map      over the buffer                   back to DOM
 
 | File | Responsibility |
 | --- | --- |
-| `extension/src/patterns.js` | Detector engine — 58 patterns, factories, dedup (38 ported verbatim) |
+| `extension/src/patterns.js` | Detector engine — 63 patterns, factories, dedup (38 ported verbatim) |
 | `extension/src/detect.js`   | DOM ↔ buffer bridge; match → `Range` mapping; hover lookup; input cap |
 | `extension/src/meta.js`     | Per-pattern group + "read more" URL |
 | `extension/src/content.js`  | Highlight painting, interactive tooltip, `MutationObserver` |
@@ -194,6 +194,20 @@ added many more signals — several of them **crowd-sourced from the community**
   [Signs of AI writing: 12 patterns with reproducible thresholds](https://slopdetector.org/blog/signs-of-ai-writing)
   (verb inflation, hedge stacking, pseudo-wisdom filler, and several detector
   extensions)
+- **Counted AI-isms list** — ScriptGrain,
+  [AI-isms in marketing copy: 30 phrases and 10 sentence shapes](https://scriptgrain.com/reference/ai-isms-in-marketing-copy)
+  (transition-word openers, literary-register slop; shapes informing the
+  staccato/fragment work)
+- **AI word blacklist** — ContentBeta,
+  [List of 300+ AI Words, Phrases and Sentences to Avoid](https://www.contentbeta.com/blog/list-of-words-overused-by-ai/)
+  (staccato fragments, "here's the deal" family, marketing negative-parallelism
+  variants)
+- **ChatGPT-isms field guide** — Hana LaRock,
+  [10 Common ChatGPT-isms](https://www.hanalarockwriting.com/post/10-common-chatgpt-isms-what-to-watch-out-for-when-writing-content-with-ai-infographics)
+  ("bear in mind", the uncertainty formulas)
+- **Common AI-isms overview** — Oreate AI,
+  [Stop Writing Like a Bot](https://discover.oreateai.com/discover/stop-writing-like-a-bot-by-eliminating-these-common-aiisms)
+  ("double-edged sword" / "strike a balance", bare "digital landscape")
 - **Vocabulary word lists** — post-ChatGPT frequency studies (Kobak et al.,
   *Science Advances* 2025; Liang et al., ICML 2024)
 

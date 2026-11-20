@@ -9,6 +9,136 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-11-20 — Five-source coverage audit: 5 new detectors, 8 extensions (58 → 63)
+
+**Summary:** Asked to check the detector set against five external AI-ism
+catalogues — Wikipedia's
+[Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing),
+[Oreate AI's AI-isms overview](https://discover.oreateai.com/discover/stop-writing-like-a-bot-by-eliminating-these-common-aiisms),
+[ScriptGrain's counted AI-isms](https://scriptgrain.com/reference/ai-isms-in-marketing-copy),
+[ContentBeta's overused-word list](https://www.contentbeta.com/blog/list-of-words-overused-by-ai/),
+and [Hana LaRock's 10 ChatGPT-isms](https://www.hanalarockwriting.com/post/10-common-chatgpt-isms-what-to-watch-out-for-when-writing-content-with-ai-infographics).
+The audit found ~75% coverage (details below), of which the prose-addressable
+majority is now implemented: **five new detectors** (`transition-openers`,
+`shapes-discussions`, `primary-source`, `literary-slop`, `staccato-fragments`)
+and **eight regex extensions** to existing detectors. 58 → 63 detectors;
+401 → 491 tests (89 new `new-signs.test.js` cases + 1 meta link test). No Node binary in the
+container, so every new/extended regex was additionally verified by replaying
+all 160 affected cases through a Python `re` harness that extracts the literals
+verbatim from `patterns.js` (JS `\uXXXX` escapes decoded; `\b`/`\s`/`\d`
+semantics identical), including a HEAD-vs-tree regression on the reference
+EXAMPLE (zero drift on all 53 pre-existing `makeRegexFinder` detectors; the
+five new detectors produce zero EXAMPLE hits, matching the `ADDED` set
+invariant in `patterns.test.js`).
+
+**Audit result (what was already covered vs. missing):**
+
+- Wikipedia: strong. All language/grammar signs covered (ai-vocab, not-just,
+  copulative-avoidance, participle-tail, vague-experts, despite-challenges,
+  canned-notability, ai-leftovers…). Missing and now added: debate-shaping
+  claims (§ "Claims that a topic has influenced discussions about related
+  topics") and primary/tertiary-source identification (§ "Undue emphasis on
+  identification by primary or tertiary sources"), plus placeholders and raw
+  Markdown debris (§ "Phrasal templates and placeholder text", § "Markup
+  irregularities"), and the trailing-offer/abrupt-cutoff family. The
+  `ai-leftovers` read-more anchor `Internal_formatting_and_reference_markup_bugs`
+  no longer exists in the live guide — retargeted to `Markup_irregularities`.
+- ScriptGrain: phrase hits mostly covered; the *sentence shapes* were the gap
+  (staccato/fragment cadence now caught; em-dash density, transition-opener
+  ratio, uniform sentence length, rule-of-three and antithesis were already
+  covered by `src/stats.js` at page-grade level; semicolon chains and
+  no-contractions remain deferred — see FUTURE_WORK.md).
+- ContentBeta: validated-study words covered via ai-vocab/promo/hype; the
+  marketing tail (staccato fragments, "here's the deal", the hard truth,
+  "not because X, but because Y", "Forget X. Think Y.", "Less X, more Y.")
+  now added. Their bare-word tail (resonate, elevate, harness, supercharge,
+  secret sauce…) is documented in FUTURE_WORK.md as a vocabulary extension,
+  deliberately kept out of `ai-vocab` to preserve its frequency-study
+  validation.
+- HanaLaRock: weakest overlap. "bear in mind" and the uncertainty formulas
+  added; passive voice, qualifier density, and balanced-tone are documented
+  skips (too noisy for per-span highlighting).
+- Oreate AI: "double-edged sword"/"strike a balance", bare "digital /
+  competitive landscape", "since the dawn of time" added; "symphony",
+  emoji-injection documented skips.
+
+**What changed:**
+
+- `extension/src/patterns.js`:
+  - New `makeStaccatoFinder` factory (after `makeAnaphoraFinder`): runs of ≥3
+    consecutive sentences of ≤2 words each; standalone abbreviation tokens
+    ("Dr.", "Inc.") and letter-less tokens break runs; >3-char gaps break runs.
+    The abbreviation regex requires `(?:^|\s)` before the word — the first draft
+    matched word *suffixes* ("fa**st.**", "**no.**"), wrongly breaking runs; the
+    two extra branch-coverage cases caught it.
+  - Five new pattern entries appended after `ineffability` (three Rhetorical
+    tics, two Wikipedia group — see CHANGELOG for the phrase families).
+  - Eight regex extensions (note-that, scene-setting, landscape,
+    heres-the-twist, hedge-stack, pseudo-wisdom, not-just, ai-leftovers), each
+    description updated to name the new phrases.
+  - One harness-caught fix during verification: `literary-slop` originally
+    required "what could only be described as"; the natural form is "**that**
+    could only be described as" — widened to `(?:what|that|which)`.
+- `extension/src/meta.js` — `WIKI_ANCHORS` entries for `shapes-discussions` and
+  `primary-source`; stale `ai-leftovers` anchor retargeted to
+  `Markup_irregularities`; new `SCRIPTGRAIN_PATTERNS`/`CONTENTBETA_PATTERNS`
+  link sets; header comment documents the two new sources.
+- `extension/tests/new-signs.test.js` — 89 new cases (positive + negative for
+  every added phrase family, including `arr[1]` vs `\[1\]` and
+  "Would you like tea?" negatives guarding the markdown/offer additions, plus
+  cases covering the finder's gap-break, letter-less-token, and
+  person-initial branches, and precision guards added after fresh-eyes review:
+  "Don't forget the intro", mid-sentence "; moreover,", "user[name]",
+  "2 ** 3 ** 2", "example.com/tbd", "notes/dates" identification arms,
+  "accepted the hard truth", "a broader debate", and "Yes. No. Maybe.").
+- `extension/tests/meta.test.js` — one test asserting the new read-more links
+  (ScriptGrain for `transition-openers`/`literary-slop`, ContentBeta for
+  `staccato-fragments`, Wikipedia for the two new Wikipedia-group ids).
+- `extension/tests/patterns.test.js` — the five new ids added to the `ADDED`
+  set (not represented in the verbatim reference EXAMPLE).
+- `README.md`, `extension/README.md` — 58 → 63 detectors; tests badge 401 → 491
+  (decomposition: 196 cases.js + 6 patterns engine tests + 243 new-signs +
+  8 security (4 explicit + 4 generated) + 9 detect + 6 meta + 23 stats);
+  Credits section gains the five sources.
+- `NOTICE` — attribution block for the four new catalogues.
+- `extension/docs/FUTURE_WORK.md` — deferred signs recorded (see below).
+
+**Deliberately skipped (documented, not built):** bare high-frequency words
+(crucial/essential/notable/considerable — too common in human prose for
+per-span flags), qualifier density, passive voice, balanced-tone, appositive
+definitions, "the former… the latter", emoji injection, Wikipedia-only signs
+(citations/DOIs, edit summaries, AfC).
+
+**Fresh-eyes review fixes (2026-11-20, post-implementation):** an independent
+review probed the new regexes and found four real + nine minor issues, all
+fixed: `primary-source` dropped the temporal verbs ("records **date** from…",
+"website **dates** from…") and the mundane "notes that" arm; the staccato
+abbreviation guard now requires standalone words (`(?:^|\s)`) and includes
+person initials, and "No." re-joined the fragment vocabulary (a ranking-list
+"**No.** 5 ranked." shape can still false-positive — accepted, toggleable);
+`transition-openers` boundaries tightened to sentence starts only (no more
+"; moreover," mid-sentence hits) and its density claim moved to the page grade;
+`shapes-discussions` widened its qualifier slot ("prompted **a broader** debate
+about") and added plural "conversations"; `not-just`'s "Forget X. Think Y." arm
+is now sentence-initial only ("Don't forget the intro; start with…" safe) and
+the "Less X, more Y" tails stop at dashes; `ai-leftovers` markdown/placeholders
+require word-initial brackets (`(?<=\s)`) and letters inside `**…**`, so
+"user[name]", "2 ** 3 ** 2", and "example.com/tbd" no longer fire;
+`heres-the-twist`'s "the hard truth" now requires "is/was" ("accepted the hard
+truth" safe); the bare-"landscape" list dropped "modern" (art-history FP). The
+staccato span now trims leading whitespace.
+
+**Commands / verification:**
+
+- Regex verification harness: `python3 /tmp/opencode/verify_patterns.py`
+  (160/160 cases pass; EXAMPLE invariants hold).
+- HEAD-vs-tree regression: `python3 /tmp/opencode/verify_example_regression.py`
+  (53 pre-existing detectors, 0 drift; 4 new detectors, 0 EXAMPLE hits).
+- `npm test` could not run in this container (no Node binary); CI must confirm
+  the full suite. The Python replay replicates every case added today.
+
+---
+
 ## 2026-09-11 — Topic-announcement + ineffability detectors ("The subject is measurement, and the obfuscated logic bypass that automation cannot finish")
 
 **Summary:** A user offered a two-sentence sample as a classic AI tell and asked
