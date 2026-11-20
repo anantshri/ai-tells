@@ -8,7 +8,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4.svg?logo=googlechrome&logoColor=white)](./extension/manifest.json)
-[![Tests](https://img.shields.io/badge/tests-491%20passing-brightgreen.svg)](./extension/tests)
+[![Tests](https://img.shields.io/badge/tests-494%20passing-brightgreen.svg)](./extension/tests)
 [![Coverage](https://img.shields.io/badge/coverage-96%25-brightgreen.svg)](#testing)
 [![Zero runtime deps](https://img.shields.io/badge/runtime%20deps-0-success.svg)](./extension/package.json)
 

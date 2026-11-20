@@ -173,7 +173,11 @@ function makeAnaphoraFinder({ minRun = 3 } = {}) {
 // joining them, and tokens without letters (section numbers) are ignored.
 function makeStaccatoFinder({ minRun = 3, maxWords = 2 } = {}) {
   const ABBR = /(?:^|\s)(?:(?:Dr|Mr|Mrs|Ms|Prof|Sr|Jr|St|Inc|Ltd|Co|Corp|vs|etc|approx|est|fig|vol)|[A-Za-z])\.\s*$/i;
-  const SENT = /[^.!?\n]+[.!?]+/g;
+  // Bounded like the other factories' sentence regexes (ReDoS): an unbounded
+  // greedy grab backtracks O(n^2) on terminator-free input. A <=2-word fragment
+  // is <=40 chars, so longer runs yield no token -- and the finder's >3-char
+  // gap check still breaks runs across such skipped text.
+  const SENT = /[^.!?\n]{1,40}[.!?]+/g;
   return function (text) {
     const found = [];
     let runStart = -1;

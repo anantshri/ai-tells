@@ -9,6 +9,67 @@ below; drop sections that genuinely don't apply.
 
 ---
 
+## 2026-11-20 — Dev toolchain upgrade (vitest 5, jsdom 31) + staccato ReDoS fix
+
+**Summary:** User asked to upgrade undici and vite ("undic") and audit the
+rest. Both turned out to be transitive devDependencies: `undici` 8.10.0 via
+jsdom, `vite` 8.2.2 via vitest — and both carried open advisories (undici:
+7, incl. GHSA-2m5v-pch6-74hx TLS validation bypass and GHSA-4w7w-5xrc-9h26
+cache poisoning; vite 8.2.0–8.2.2: 3 high, incl. launch-editor command
+injection). Fix: bump the direct deps that own them — vitest
+4.1.11 → **5.1.1** (+ @vitest/coverage-v8 5.1.1) and jsdom 30.0.1 → **31.0.1** —
+regenerating `package-lock.json` from scratch (`npm audit fix` alone failed
+with an npm "edgesOut" internal error against the stale tree, and the pinned
+majors would have kept the vulnerable vite anyway). Result: vite **8.3.8**,
+undici **8.13.0**, esbuild unchanged at 0.28.2 (already latest), **`npm audit`
+clean (0 vulnerabilities)**. Dev-only: the extension ships zero runtime deps.
+
+**ReDoS regression caught by the first-ever in-container test run** (Node
+v22.23.5 installed to /tmp from nodejs.org — the container has no Node):
+running the suite after the upgrade showed `full pipeline over a large hostile
+buffer is bounded` failing at 48s against its 3s budget. Profiling each of the
+63 detectors on the exact hostile buffer (`'no what word, why did not and - '
+× 6250`) pinned it on `staccato-fragments` — 48,076ms alone, everything else
+≤359ms. Root cause: its sentence regex `[^.!?
+]+[.!?]+` greedily matched the
+entire 200KB terminator-free buffer, then backtracked char-by-char at every
+position — O(n²), precisely the class of bug the repo already fixed in the
+chain detectors by bounding quantifiers. Fix: bound the token to
+`[^.!?
+]{1,40}[.!?]+` (a ≤2-word fragment is ≤40 chars; longer runs yield no
+token, and the finder's >3-char gap check still breaks runs across skipped
+text, so semantics are unchanged). Re-profiled: **29ms**. Added a dedicated
+adversarial entry for `staccato-fragments` to `security.test.js`.
+
+**Test-count correction:** the detector-work commit's badge claimed 491 tests;
+the true count there was 493 (a counting grep missed 2 double-quoted case
+entries and under-derived the suite arithmetic). With the new security test
+the suite is now **494 = 196 cases.js + 6 patterns engine tests + 245
+new-signs + 9 security (4 explicit + 5 generated adversarial) + 9 detect +
+6 meta + 23 stats**. Badge corrected.
+
+**Commands / verification:**
+
+- Node v22.23.5 (npm 10.9.9) installed from nodejs.org dist tarball into
+  /tmp/opencode (arm64); PATH-prefixed per command.
+- `npm outdated` → vitest/coverage 4.1.11→5.1.1, jsdom 30.0.1→31.0.1 major;
+  esbuild current.
+- `npm audit` (before): 6 vulnerabilities (3 moderate undici, 3 high vite).
+- package.json majors bumped → `rm -rf node_modules package-lock.json` →
+  `npm install` (77 packages) → `npm audit`: **0 vulnerabilities**.
+- `npm test`: **494/494 pass** in 2.31s (was failing 1/493 at 49.8s pre-fix).
+- `npx vitest run --coverage`: 95.8% lines on the logic modules; uncovered
+  patterns.js lines are pre-existing window-merge/URL-helper branches.
+- `npm run build`: dist/{chrome,firefox,safari} regenerated (dist/ is
+  gitignored by design — not committed).
+- `aidc-scan`: semgrep/gitleaks/vet/license-check clean.
+
+**Notes:** `npm audit fix` was not used for the majors because it edits within
+existing semver ranges (vite would stay 8.2.x under vitest 4's pin) and
+errored on the stale tree; explicit major bumps + clean lockfile regeneration
+is the reproducible path. No runtime dependencies exist, so the advisory
+exposure was limited to the dev/build machine.
+
 ## 2026-11-20 — Five-source coverage audit: 5 new detectors, 8 extensions (58 → 63)
 
 **Summary:** Asked to check the detector set against five external AI-ism
