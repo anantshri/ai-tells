@@ -26,6 +26,17 @@ describe('meta', () => {
     }
   });
 
+  test('audit-batch patterns link to their own catalogues', () => {
+    expect(moreUrlFor('transition-openers')).toBe(
+      'https://scriptgrain.com/reference/ai-isms-in-marketing-copy');
+    expect(moreUrlFor('literary-slop')).toBe(
+      'https://scriptgrain.com/reference/ai-isms-in-marketing-copy');
+    expect(moreUrlFor('staccato-fragments')).toBe(
+      'https://www.contentbeta.com/blog/list-of-words-overused-by-ai/');
+    expect(moreUrlFor('shapes-discussions')).toContain('en.wikipedia.org');
+    expect(moreUrlFor('primary-source')).toContain('en.wikipedia.org');
+  });
+
   test('unknown ids resolve safely', () => {
     expect(metaFor('does-not-exist')).toBeNull();
     expect(groupFor('does-not-exist')).toBe('Rhetorical tics');

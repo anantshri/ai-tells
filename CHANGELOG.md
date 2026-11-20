@@ -10,6 +10,8 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-20
+
 ### Changed
 
 - AI Tells: the toolbar badge now reflects the page **grade** (fired-signal
@@ -28,6 +30,38 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Added
 
+- AI Tells: five new detectors from a coverage audit against five external
+  AI-ism catalogues (Wikipedia's "Signs of AI writing"; ScriptGrain's counted
+  AI-isms list; ContentBeta's overused-word blacklist; Hana LaRock's
+  ChatGPT-isms; Oreate AI's AI-isms overview) — **transition-word openers**
+  (sentence-initial "Moreover," / "Furthermore," / "Additionally,", previously
+  page-grade-only), **shaping the debate** ("has shaped conversations about",
+  Wikipedia:ITSHAPESDISCUSSIONS), **identified by sources** ("his parliamentary
+  biography records that…", "is listed in", Wikipedia's primary/tertiary-source
+  sign), **literary-register slop** ("that could only be described as", "its
+  own form of grace", "possessed of"), and **staccato sentence fragments**
+  ("Focused. Aligned. Measurable.", "No theory. No fluff. Just execution.") —
+  63 detectors total. 493 tests (badge undercounted at 491; recounted in the
+  toolchain entry below).
+- AI Tells: extended eight detectors with signs from the same audit —
+  `note-that` ("bear in mind"), `scene-setting` (bare "in today's world", "in an
+  age where", "since the dawn of time", "in this day and age"), `landscape`
+  (bare "digital / competitive landscape"), `heres-the-twist` ("here's the
+  deal/truth/story", "the hard truth is"), `hedge-stack` ("it is likely that",
+  "there is a possibility that", "it may be the case that", "Perhaps X, perhaps
+  Y"), `pseudo-wisdom` ("double-edged sword", "strike a balance"), `not-just`
+  ("not because X, but because Y", "Forget X. Think Y.", "Less X, more Y"), and
+  `ai-leftovers` (the trailing "Would you like me to…", unfilled placeholders
+  "[insert year]"/"[Name]"/"TBD", and raw pasted Markdown — `**bold**`,
+  `## heading`, `\[1\]`). Read-more links now also point at ScriptGrain and
+  ContentBeta; Credits and NOTICE credit all five sources.
+- AI Tells: two new rhetorical-tic detectors — **topic announcements**
+  ("The subject is measurement", "the real story is…", "The takeaway here is…")
+  and **ineffability claims** (the grandiose-negation flourish that insists the
+  subject exceeds measurement: "the logic bypass that automation cannot
+  finish", "nuance that no benchmark can capture", "defies easy
+  categorization") — 58 detectors total. 401 tests (the README badge previously
+  claimed 366; the tree actually held 373 — stale badge corrected here).
 - AI Tells: a ninth page-grading signal — **antithesis / negative-parallelism
   density**. The document grade now counts "not just X but Y", "it isn't X,
   it's Y", and "X, not Y" constructions and flags them when they cluster
@@ -91,6 +125,23 @@ right heading. Record the blow-by-blow detail (commands, diffs, reasoning) in
 
 ### Changed
 
+- AI Tells: dev toolchain upgraded — vitest 4.1.11 → **5.1.1** (with
+  @vitest/coverage-v8 5.1.1) and jsdom 30.0.1 → **31.0.1**, pulling patched
+  transitive versions of `vite` 8.2.2 → 8.3.8 (three high advisories:
+  launch-editor command injection, cross-origin script execution, `server.fs`
+  escapes) and `undici` 8.10.0 → 8.13.0 (seven advisories, including TLS
+  certificate-validation bypass and cache poisoning via cross-origin
+  redirects). `npm audit` reports 0 vulnerabilities. Dev-only — the extension
+  ships zero runtime deps. esbuild was already latest (0.28.2).
+
+### Fixed
+
+- AI Tells: ReDoS-class slowdown in the `staccato-fragments` finder — its
+  sentence regex greedily grabbed the whole buffer on terminator-free input
+  and backtracked at every position (O(n²); 48s on a 200KB hostile page). The
+  token regex is now bounded (`{1,40}`, matching the other factories), the
+  detector re-profiled at 29ms, and a dedicated adversarial entry guards it in
+  the security test. 494 tests.
 - Renamed the project to **AI Tells** (repo `ai-tells`) — across the manifest,
   package, Firefox add-on id, popup, READMEs, and NOTICE. New tagline: "helps you
   identify signs of probable AI usage".

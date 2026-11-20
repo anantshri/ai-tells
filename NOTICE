@@ -40,6 +40,28 @@ underlying pattern research is SlopDetector's:
 
     https://slopdetector.org/blog/signs-of-ai-writing
 
+Some detectors and detector extensions are derived from published AI-ism
+catalogues (the detector implementations are ours; ideas credited to their
+authors). ScriptGrain's counted AI-isms list informed the transition-word
+openers and literary-register slop detectors:
+
+    https://scriptgrain.com/reference/ai-isms-in-marketing-copy
+
+ContentBeta's AI word/pattern blacklist informed the staccato-fragment
+detector and the "here's the deal"/negative-parallelism variants:
+
+    https://www.contentbeta.com/blog/list-of-words-overused-by-ai/
+
+Hana LaRock's ChatGPT-isms guide informed the "bear in mind" and
+uncertainty-formula hedge extensions:
+
+    https://www.hanalarockwriting.com/post/10-common-chatgpt-isms-what-to-watch-out-for-when-writing-content-with-ai-infographics
+
+Oreate AI's AI-isms overview informed the "double-edged sword"/"strike a
+balance" pseudo-wisdom and bare-"digital landscape" landscape extensions:
+
+    https://discover.oreateai.com/discover/stop-writing-like-a-bot-by-eliminating-these-common-aiisms
+
 Some detectors were inspired by signals crowd-sourced from the community. The
 ideas are credited to their authors (the detector implementations are ours):
 

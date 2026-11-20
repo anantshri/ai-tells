@@ -183,6 +183,161 @@ const cases = [
   ['journey-metaphor', 'The partnership is setting the stage for a merger.', 1],
   ['journey-metaphor', 'This failure underscores the importance of backups.', 1],
   ['journey-metaphor', 'The crew built a stage for the school play.', 0],
+
+  // Topic announcement ("The subject is measurement" — third-person topic labeling)
+  ['topic-announcement', 'The subject is measurement, and the obfuscated logic bypass that automation cannot finish.', 1],
+  ['topic-announcement', 'The real story is that the launch failed.', 1],
+  ['topic-announcement', 'The takeaway here is simple: test your backups.', 1],
+  ['topic-announcement', 'The topic was community governance.', 1],
+  ['topic-announcement', 'The bigger lesson is that defaults matter.', 1],
+  ['topic-announcement', 'The upshot was a full rewrite.', 1],
+  ['topic-announcement', 'The subject: measurement.', 1],
+  ['topic-announcement', 'The subject of this paper is hashing.', 0],
+  ['topic-announcement', 'She changed the subject.', 0],
+  ['topic-announcement', 'The story has a happy ending.', 0],
+  ['topic-announcement', 'The focus is on performance.', 0],
+  ['topic-announcement', 'The topics are mundane.', 0],
+
+  // Ineffability ("the X that automation cannot finish" — grandiose-negation flourish)
+  ['ineffability', 'The subject is measurement, and the obfuscated logic bypass that automation cannot finish.', 1],
+  ['ineffability', 'A bypass that no benchmark can capture.', 1],
+  ['ineffability', 'Edge cases which no tool will ever fully cover.', 1],
+  ['ineffability', 'Nuance that automation can’t capture.', 1],
+  ['ineffability', 'Details that tests cannot reach.', 1],
+  ['ineffability', 'A path that no test can cover.', 1],
+  ['ineffability', 'An interface beyond the reach of automation.', 1],
+  ['ineffability', 'Behavior beyond what any model can predict.', 1],
+  ['ineffability', 'A workflow that defies easy categorization.', 1],
+  ['ineffability', 'The root cause eludes simple measurement.', 1],
+  ['ineffability', 'Parts of the pipeline cannot be fully automated.', 1],
+  ['ineffability', 'Tests that can run in parallel.', 0],
+  ['ineffability', 'A file that tools can open.', 0],
+  ['ineffability', 'He defies gravity and expectation.', 0],
+  ['ineffability', 'The bug was beyond the reach of the original team.', 0],
+  ['ineffability', 'This content cannot be reproduced without permission.', 0],
+
+  // ---- 2026-11-20 batch: coverage audit of five AI-ism sources -------------
+  // Wikipedia "Signs of AI writing"; discover.oreateai.com AI-isms;
+  // scriptgrain.com counted AI-isms; contentbeta.com overused-word list;
+  // hanalarockwriting.com 10 ChatGPT-isms.
+
+  // Transition-word openers (scriptgrain generic transitions; oreateai;
+  // hanalarock §6) — sentence-initial only
+  ['transition-openers', 'Moreover, the rollout slipped again.', 1],
+  ['transition-openers', 'The plan failed. Furthermore, nobody noticed.', 1],
+  ['transition-openers', 'Additionally, the price went up mid-contract.', 1],
+  ['transition-openers', 'In addition, the docs were stale.', 1],
+  ['transition-openers', 'The project moved forward, moreover, without a plan.', 0],
+  ['transition-openers', 'This addition improves the parser.', 0],
+  ['transition-openers', 'He was tired; moreover, he was broke.', 0],
+
+  // "Bear in mind" (hanalarock §6) — extension of note-that
+  ['note-that', 'Bear in mind that the estimate assumes steady traffic.', 1],
+  ['note-that', 'Bearing this in mind, we rewrote the importer.', 1],
+  ['note-that', 'The bear in the exhibit was asleep.', 0],
+
+  // Shaping the debate (Wikipedia: claims of influencing related discussions)
+  ['shapes-discussions', 'Her work has shaped conversations about digital ethics.', 1],
+  ['shapes-discussions', 'These works have shaped emerging policy discussions about ownership.', 1],
+  ['shapes-discussions', 'The phenomenon has generated debate about authenticity.', 1],
+  ['shapes-discussions', 'The paper prompted broader reflection on mortality.', 1],
+  ['shapes-discussions', 'Her campaign contributed to wider discussions about marriage.', 1],
+  ['shapes-discussions', 'The sculptor shaped the clay into a bowl.', 0],
+  ['shapes-discussions', 'The protests sparked a conversation about wages.', 0],
+  ['shapes-discussions', 'The study prompted a broader debate about ethics.', 1],
+  ['shapes-discussions', 'The book generated conversations about grief.', 1],
+
+  // Identified by sources (Wikipedia: primary/tertiary source identification)
+  ['primary-source', 'His personal website identifies him as a retired officer.', 1],
+  ['primary-source', 'His parliamentary biography records that he served as president.', 1],
+  ['primary-source', 'The church is listed in the national register.', 1],
+  ['primary-source', 'Her professional profile lists her as a consultant.', 1],
+  ['primary-source', 'Company filings describe a restructuring plan.', 1],
+  ['primary-source', 'He listed his three favourite albums.', 0],
+  ['primary-source', 'The website lists the opening hours.', 0],
+  ['primary-source', 'The official website dates from 2005.', 0],
+  ['primary-source', 'Court records date from the medieval period.', 0],
+  ['primary-source', 'The staff page notes that parking is limited.', 0],
+
+  // Bare scene-setting openers (scriptgrain; contentbeta; oreateai)
+  ['scene-setting', 'In today’s world, everyone ships software.', 1],
+  ['scene-setting', 'In an age where data is cheap, judgment is scarce.', 1],
+  ['scene-setting', 'Since the dawn of time, humans have sought better tools.', 1],
+  ['scene-setting', 'In this day and age, nobody faxes memos.', 1],
+  ['scene-setting', 'The world today runs on software.', 0],
+
+  // Bare "digital / competitive landscape" (oreateai) — extension of landscape
+  ['landscape', 'The digital landscape is shifting fast.', 1],
+  ['landscape', 'Startups fight for share in a competitive landscape.', 1],
+  ['landscape', 'They photographed the mountain landscape.', 0],
+
+  // "Here's the deal" / "the hard truth" (contentbeta) — extension of heres-the-twist
+  ['heres-the-twist', 'Here’s the deal: the trial ends Friday.', 1],
+  ['heres-the-twist', 'The hard truth is that most dashboards go unread.', 1],
+  ['heres-the-twist', 'She told the truth about the delay.', 0],
+  ['heres-the-twist', 'The hard facts speak for themselves.', 0],
+  ['heres-the-twist', 'She finally accepted the hard truth.', 0],
+
+  // Uncertainty formulas + "Perhaps X, perhaps Y" (hanalarock §8; scriptgrain
+  // hedging pair) — extension of hedge-stack
+  ['hedge-stack', 'It is likely that the rollout will slip again.', 1],
+  ['hedge-stack', 'There is a possibility that the data is stale.', 1],
+  ['hedge-stack', 'It may be the case that users ignored the banner.', 1],
+  ['hedge-stack', 'Perhaps it was haste, perhaps it was pride.', 1],
+  ['hedge-stack', 'It is likely to rain later.', 0],
+  ['hedge-stack', 'Perhaps we should reconsider.', 0],
+
+  // "Double-edged sword" / "strike a balance" (oreateai) — extension of pseudo-wisdom
+  ['pseudo-wisdom', 'Automation is a double-edged sword for small teams.', 1],
+  ['pseudo-wisdom', 'The art is striking a balance between speed and rigor.', 1],
+  ['pseudo-wisdom', 'The sword was double-edged steel.', 0],
+  ['pseudo-wisdom', 'They balanced the ledger by hand.', 0],
+
+  // Chatbot trailing offer, placeholders, raw markdown (Wikipedia §5.3/§6) —
+  // extension of ai-leftovers
+  ['ai-leftovers', 'The report is ready. Would you like me to expand the section?', 1],
+  ['ai-leftovers', 'Founded in [insert year], the company grew quickly.', 1],
+  ['ai-leftovers', 'Set the status to [Name] before shipping.', 1],
+  ['ai-leftovers', 'The agenda item is still TBD.', 1],
+  ['ai-leftovers', 'This is **bold text** pasted from a chat.', 1],
+  ['ai-leftovers', '## Why This Matters\n\nThe rollout began in March.', 1],
+  ['ai-leftovers', 'As noted \\[1\\], the dates conflict.', 1],
+  ['ai-leftovers', 'Would you like tea or coffee?', 0],
+  ['ai-leftovers', 'The array index is arr[1].', 0],
+  ['ai-leftovers', 'user[name] maps to the profile field.', 0],
+  ['ai-leftovers', 'Compute 2 ** 3 ** 2 for the exponent demo.', 0],
+  ['ai-leftovers', 'Read the docs at example.com/tbd first.', 0],
+
+  // Marketing negative-parallelism variants (contentbeta §2) — extension of not-just
+  ['not-just', 'Not because it is easy. But because it works.', 1],
+  ['not-just', 'Not because it was convenient, but because it was necessary.', 1],
+  ['not-just', 'Forget the roadmap. Think feedback loops.', 1],
+  ['not-just', 'Less noise, more signal — that is the pitch.', 1],
+  ['not-just', 'He was not there because of the traffic.', 0],
+  ['not-just', 'The bill came to less than expected.', 0],
+  ['not-just', 'I forgot the roadmap at home.', 0],
+  ['not-just', 'Don’t forget the intro; start with the hook.', 0],
+
+  // Literary register slop (scriptgrain nominalised metaphors + hedged closes)
+  ['literary-slop', 'It was chaos of a kind that could only be described as theatrical.', 1],
+  ['literary-slop', 'The failure carried its own form of grace.', 1],
+  ['literary-slop', 'He was possessed of a rare patience.', 1],
+  ['literary-slop', 'A constellation of factors shaped the outcome.', 1],
+  ['literary-slop', 'The ending offered perhaps enough after all.', 1],
+  ['literary-slop', 'The prose had something approaching a rhythm.', 1],
+  ['literary-slop', 'The negotiators described the terms carefully.', 0],
+  ['literary-slop', 'The house possessed real charm.', 0],
+
+  // Staccato sentence fragments (contentbeta "X. Y. Z." patterns)
+  ['staccato-fragments', 'Focused. Aligned. Measurable.', 1],
+  ['staccato-fragments', 'No theory. No fluff. Just execution.', 1],
+  ['staccato-fragments', 'Fewer questions. Less confusion. Better engagement.', 1],
+  ['staccato-fragments', 'The launch was focused, the team aligned, the rollout measurable.', 0],
+  ['staccato-fragments', 'Dr. Smith arrived at noon. Mr. Jones followed shortly after.', 0],
+  ['staccato-fragments', 'Go.\n\n\n\nFast.\n\n\n\nNow.', 0],
+  ['staccato-fragments', '1. 2. 3. Go. Fast. Now.', 1],
+  ['staccato-fragments', 'Yes. No. Maybe.', 1],
+  ['staccato-fragments', 'J. D. Vance wrote a memoir.', 0],
 ];
 
 describe('new signs (post-reference additions)', () => {

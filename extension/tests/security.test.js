@@ -14,6 +14,9 @@ describe('ReDoS resistance', () => {
     'did-not-chain': 'did not '.repeat(200000 / 8),
     'stacked-questions': 'word '.repeat(200000 / 5),
     'sentence-anaphora': 'word '.repeat(200000 / 5),
+    // terminator-free input is the pathological case for the staccato finder's
+    // sentence regex (greedy grab -> unbounded backtrack)
+    'staccato-fragments': 'word, word '.repeat(200000 / 11),
   };
 
   for (const [id, text] of Object.entries(adversarial)) {
